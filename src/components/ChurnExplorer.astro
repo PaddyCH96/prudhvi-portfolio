@@ -1,0 +1,155 @@
+---
+import { churnSegments } from '../data/profile.js';
+const baseline = churnSegments.find((s) => s.key === 'overall').rate;
+const max = Math.max(...churnSegments.map((s) => s.rate));
+const scale = (v) => (v / (max * 1.12)) * 100;
+---
+<section id="demo">
+  <div class="wrap">
+    <h2>Live demo — churn risk explorer</h2>
+    <h3 style="font-size:20px;">Which customers actually leave?</h3>
+    <p style="max-width:64ch;">
+      Every figure below is a published finding from my telecom churn study of 7,043 customers —
+      not sample data. Select a segment to see how it moves against the baseline.
+    </p>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="chart-head">
+        <span class="chart-title">Churn rate by segment</span>
+        <button id="tableToggle" class="mini" aria-expanded="false">Table view</button>
+      </div>
+
+      <div id="bars" role="list">
+        {churnSegments.map((s) => (
+          <button
+            class="row"
+            role="listitem"
+            data-key={s.key}
+            data-rate={s.rate}
+            data-label={s.label}
+            data-note={s.note}
+            aria-label={`${s.label}: ${s.rate.toFixed(1)}% churn`}
+          >
+            <span class="row-label">{s.label}</span>
+            <span class="track">
+              <span class="baseline-mark" style={`left:${scale(baseline)}%`} aria-hidden="true"></span>
+              <span
+                class="bar"
+                style={`width:${scale(s.rate)}%; --bar-color:${s.rate > baseline ? 'var(--accent-warm)' : 'var(--series-1)'};`}
+              ></span>
+              <span class="val">{s.rate.toFixed(1)}%</span>
+            </span>
+          </button>
+        ))}
+        <div class="axis-note">
+          <span class="dash"></span> Baseline {baseline}% — all customers
+        </div>
+      </div>
+
+      <table id="dataTable" hidden>
+        <caption>Churn rate by segment — telecom study, 7,043 customers</caption>
+        <thead><tr><th scope="col">Segment</th><th scope="col">Churn rate</th><th scope="col">vs baseline</th></tr></thead>
+        <tbody>
+          {churnSegments.map((s) => (
+            <tr>
+              <th scope="row">{s.label}</th>
+              <td>{s.rate.toFixed(1)}%</td>
+              <td>{s.key === 'overall' ? '—' : `${s.rate > baseline ? '+' : ''}${(s.rate - baseline).toFixed(1)} pts`}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div id="detail" class="detail">
+        <strong id="dTitle">Select a segment</strong>
+        <span id="dNote">Each bar is a real finding from the analysis.</span>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--muted); margin-top:12px;">
+      Source: <a href="https://github.com/PaddyCH96/customer-churn-analysis-telco">customer-churn-analysis-telco</a> —
+      full methodology and code on GitHub.
+    </p>
+  </div>
+</section>
+
+<style>
+  .chart-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; gap:12px; }
+  .chart-title { font-size:14px; font-weight:600; color:var(--text-primary); }
+  .mini {
+    font-size:12.5px; color:var(--text-secondary); background:transparent;
+    border:1px solid var(--border); border-radius:6px; padding:4px 10px; cursor:pointer;
+  }
+  .mini:hover { border-color:var(--series-1); }
+
+  .row {
+    display:grid; grid-template-columns: 190px 1fr; align-items:center; gap:14px;
+    width:100%; background:transparent; border:0; padding:5px 4px; cursor:pointer;
+    text-align:left; font:inherit; border-radius:6px;
+  }
+  .row:hover, .row:focus-visible { background:var(--plane); outline:none; }
+  .row[aria-current="true"] { background:var(--plane); }
+  .row[aria-current="true"] .bar { box-shadow:0 0 0 2px var(--surface-1), 0 0 0 3px var(--bar-color); }
+  .row-label { font-size:13.5px; color:var(--text-secondary); }
+  .baseline-mark { position:absolute; top:-3px; bottom:-3px; width:0; border-left:2px dashed var(--baseline); pointer-events:none; }
+  .track { position:relative; display:flex; align-items:center; gap:10px; height:26px; }
+  .bar {
+    height:14px; background:var(--bar-color);
+    border-radius:0 4px 4px 0;      /* rounded data-end, anchored at the baseline */
+    min-width:3px; transition:width .25s ease;
+  }
+  .val { font-size:13px; font-weight:600; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+  .axis-note { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); margin-top:14px; padding-left:204px; }
+  .dash { display:inline-block; width:22px; border-top:2px dashed var(--baseline); }
+
+  .detail {
+    margin-top:18px; padding-top:16px; border-top:1px solid var(--border);
+    display:flex; flex-direction:column; gap:3px; min-height:46px;
+  }
+  #dTitle { font-size:14px; color:var(--text-primary); }
+  #dNote { font-size:13.5px; color:var(--text-secondary); }
+
+  table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13.5px; }
+  caption { text-align:left; color:var(--muted); font-size:12.5px; padding-bottom:8px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--border); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+  thead th { color:var(--muted); font-weight:600; font-size:12.5px; }
+
+  @media (max-width:640px) {
+    .row { grid-template-columns:1fr; gap:2px; }
+    .axis-note { padding-left:0; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var rows = document.querySelectorAll('#bars .row');
+    var dTitle = document.getElementById('dTitle');
+    var dNote = document.getElementById('dNote');
+    var baseline = 26.5;
+
+    function select(el) {
+      rows.forEach(function (r) { r.setAttribute('aria-current', String(r === el)); });
+      var rate = parseFloat(el.dataset.rate).toFixed(1);
+      var delta = (parseFloat(rate) - baseline).toFixed(1);
+      dTitle.textContent =
+        el.dataset.label + ' — ' + rate + '%' +
+        (el.dataset.key === 'overall' ? '' : '  (' + (parseFloat(rate) > baseline ? '+' : '') + delta + ' pts vs baseline)');
+      dNote.textContent = el.dataset.note;
+    }
+    rows.forEach(function (r) {
+      r.addEventListener('click', function () { select(r); });
+      r.addEventListener('mouseenter', function () { select(r); });
+      r.addEventListener('focus', function () { select(r); });
+    });
+
+    var toggle = document.getElementById('tableToggle');
+    var table = document.getElementById('dataTable');
+    var bars = document.getElementById('bars');
+    toggle.addEventListener('click', function () {
+      var showTable = table.hasAttribute('hidden');
+      if (showTable) { table.removeAttribute('hidden'); bars.setAttribute('hidden', ''); toggle.textContent = 'Chart view'; }
+      else { table.setAttribute('hidden', ''); bars.removeAttribute('hidden'); toggle.textContent = 'Table view'; }
+      toggle.setAttribute('aria-expanded', String(showTable));
+    });
+  })();
+</script>

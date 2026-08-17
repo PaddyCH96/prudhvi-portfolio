@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Sections from '../components/Sections.astro';
+import ChurnExplorer from '../components/ChurnExplorer.astro';
+import { profile } from '../data/profile.js';
+
+const title = `${profile.name} — ${profile.headline}`;
+const description =
+  'Data Analyst with 3 years across energy, telecom and healthcare. SQL, Power BI, Python, Azure. Production ML forecasting and revenue-risk analysis.';
+---
+<Base title={title} description={description}>
+  <Sections>
+    <ChurnExplorer />
+  </Sections>
+</Base>

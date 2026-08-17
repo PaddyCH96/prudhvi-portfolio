@@ -1,0 +1,133 @@
+---
+const { title, description } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <style is:global>
+    /* ── Palette: reference instance from the dataviz system.
+       Validated in both modes (blue #2a78d6 / red #e34948 — all checks pass). ── */
+    :root {
+      color-scheme: light;
+      --surface-1: #fcfcfb;
+      --plane: #f9f9f7;
+      --text-primary: #0b0b0b;
+      --text-secondary: #52514e;
+      --muted: #898781;
+      --grid: #e1e0d9;
+      --baseline: #c3c2b7;
+      --border: rgba(11, 11, 11, 0.10);
+      --series-1: #2a78d6;
+      --accent-warm: #e34948;
+      --good: #006300;
+      --radius: 10px;
+      --maxw: 940px;
+      --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:where(:not([data-theme="light"])) {
+        color-scheme: dark;
+        --surface-1: #1a1a19;
+        --plane: #0d0d0d;
+        --text-primary: #ffffff;
+        --text-secondary: #c3c2b7;
+        --muted: #898781;
+        --grid: #2c2c2a;
+        --baseline: #383835;
+        --border: rgba(255, 255, 255, 0.10);
+        --series-1: #3987e5;
+        --accent-warm: #e66767;
+        --good: #0ca30c;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --plane: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --series-1: #3987e5;
+      --accent-warm: #e66767;
+      --good: #0ca30c;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--plane);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--series-1); }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    section { padding: 56px 0; border-top: 1px solid var(--border); }
+    section:first-of-type { border-top: 0; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 12px; letter-spacing: -0.01em; }
+    h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin-bottom: 24px; }
+    p { margin: 0 0 14px; color: var(--text-secondary); }
+    .card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    ul { margin: 10px 0 0; padding-left: 18px; }
+    li { color: var(--text-secondary); margin-bottom: 6px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding: 0; list-style: none; }
+    .chips li {
+      margin: 0; font-size: 12.5px; color: var(--text-secondary);
+      border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px;
+    }
+    .btn {
+      display: inline-block; text-decoration: none; font-size: 14px; font-weight: 500;
+      border: 1px solid var(--border); border-radius: 8px; padding: 9px 16px;
+      color: var(--text-primary); background: var(--surface-1);
+    }
+    .btn:hover { border-color: var(--series-1); }
+    .btn-primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+    .btn-primary:hover { opacity: 0.92; }
+    footer { padding: 40px 0 64px; color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--border); }
+    #themeToggle {
+      position: fixed; top: 16px; right: 16px; z-index: 20;
+      background: var(--surface-1); color: var(--text-secondary);
+      border: 1px solid var(--border); border-radius: 8px;
+      width: 38px; height: 38px; font-size: 15px; cursor: pointer;
+    }
+    @media (max-width: 640px) { section { padding: 40px 0; } }
+  </style>
+</head>
+<body>
+  <button id="themeToggle" aria-label="Toggle colour theme" title="Toggle theme">◐</button>
+  <slot />
+  <script is:inline>
+    (function () {
+      var root = document.documentElement;
+      var stored = null;
+      try { stored = window.localStorage && localStorage.getItem('theme'); } catch (e) { /* storage unavailable */ }
+      if (stored) root.setAttribute('data-theme', stored);
+      else root.removeAttribute('data-theme');
+      var btn = document.getElementById('themeToggle');
+      btn && btn.addEventListener('click', function () {
+        var isDark = getComputedStyle(root).getPropertyValue('--plane').trim() === '#0d0d0d';
+        var next = isDark ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) { /* ignore */ }
+        window.dispatchEvent(new CustomEvent('themechange'));
+      });
+    })();
+  </script>
+</body>
+</html>
