@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import { about, profile, certifications } from '../data/index.js';
+
+const title = `About — ${profile.name}`;
+const description =
+  'Data analyst across energy, telecom, healthcare and consumer tech — five years, four companies, two countries — who kept building the tooling as well as the analysis.';
+---
+<Base title={title} description={description}>
+  <section id="top">
+    <div class="wrap">
+      <h1>{about.heading}</h1>
+      <p class="lead">{about.lead}</p>
+
+      <dl class="facts">
+        {about.facts.map((f) => (
+          <div class="fact">
+            <dt>{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  {about.sections.map((s) => (
+    <section>
+      <div class="wrap">
+        <h2>{s.title}</h2>
+        {s.body.map((para) => <p class="body">{para}</p>)}
+      </div>
+    </section>
+  ))}
+
+  <section>
+    <div class="wrap">
+      <h2>Certifications</h2>
+      <ul class="certs">
+        {certifications.map((c) => (
+          <li>
+            <span class="cert-name">{c.name}</span>
+            <span class={c.status === 'Certified' ? 'badge done' : 'badge wip'}>{c.status}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Get in touch</h2>
+      <p class="body">
+        The fastest way to reach me is email. I reply to everything that is not a
+        template.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn" href={profile.linkedin}>LinkedIn</a>
+        <a class="btn" href={profile.github}>GitHub</a>
+        <a class="btn" href={`/${profile.resume}`} download>Résumé (PDF)</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a href="/">← {profile.name}</a> · <a href="/projects/">Work</a> · <a href="/blog/">Writing</a>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  h1 { font-size: clamp(30px, 4.5vw, 42px); }
+  .lead { font-size: 19px; max-width: 60ch; color: var(--text-primary); }
+  /* Prose measure — constrain the content, not the .wrap, so left edges align. */
+  .body { font-size: 17px; line-height: 1.7; max-width: 680px; }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin: 30px 0 0;
+  }
+  .fact {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .fact dt {
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 5px;
+  }
+  .fact dd { margin: 0; font-size: 14.5px; color: var(--text-primary); }
+
+  .certs { list-style: none; padding: 0; margin: 0; max-width: 680px; }
+  .certs li {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .cert-name { font-size: 15px; color: var(--text-primary); }
+  .badge {
+    font-size: 12px; border: 1px solid; border-radius: 999px;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .badge.done { color: var(--good); border-color: var(--good); }
+  .badge.wip { color: var(--accent-warm); border-color: var(--accent-warm); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+  @media (max-width: 760px) { .facts { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .facts { grid-template-columns: 1fr; } }
+</style>

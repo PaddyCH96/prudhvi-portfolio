@@ -1,5 +1,29 @@
 ---
-const { title, description } = Astro.props;
+import { site, profile } from '../data/index.js';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 'website' for the homepage, 'article' for case studies. */
+  ogType?: string;
+}
+
+const { title, description, ogType = 'website' } = Astro.props;
+
+// Absolute canonical URL for this page, derived from the configured site
+// origin. Astro.site comes from `site` in astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+
+// Trailing slashes match Astro's directory build format, so nav links hit the
+// canonical URL directly rather than taking a redirect hop.
+const nav = [
+  { href: '/projects/', label: 'Work' },
+  { href: '/blog/', label: 'Writing' },
+  { href: '/about/', label: 'About' },
+];
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
 ---
 <!doctype html>
 <html lang="en" data-theme="light">
@@ -8,6 +32,21 @@ const { title, description } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph — controls how the link renders when pasted into LinkedIn,
+       Slack, iMessage or an email client. Without these the preview falls back
+       to a bare URL, which is the first impression on a shared link. -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content={profile.name} />
+  <meta property="og:locale" content="en_AU" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="author" content={profile.name} />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
   <style is:global>
     /* ── Palette: reference instance from the dataviz system.
@@ -18,13 +57,23 @@ const { title, description } = Astro.props;
       --plane: #f9f9f7;
       --text-primary: #0b0b0b;
       --text-secondary: #52514e;
-      --muted: #898781;
+      /* #898781 measured 3.41:1 here — under AA for the small text this is
+         used on. Darkened to 4.98:1. The dark-mode value is left alone; it
+         already passes at 5.41:1 against the dark plane. */
+      --muted: #6e6c66;
       --grid: #e1e0d9;
       --baseline: #c3c2b7;
       --border: rgba(11, 11, 11, 0.10);
       --series-1: #2a78d6;
       --accent-warm: #e34948;
       --good: #006300;
+      /* Interactive blue is a SEPARATE token from --series-1.
+         --series-1 is a data mark (CVD-validated against --accent-warm) and
+         must not move. As TEXT on the light plane it only reaches 4.19:1,
+         under WCAG AA 4.5. --link is the accessible sibling used for links
+         and buttons; --link-ink is the text colour that sits on top of it. */
+      --link: #256bc0;
+      --link-ink: #ffffff;
       --radius: 10px;
       --maxw: 940px;
       --font: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -43,6 +92,8 @@ const { title, description } = Astro.props;
         --series-1: #3987e5;
         --accent-warm: #e66767;
         --good: #0ca30c;
+        --link: #3987e5;
+        --link-ink: #0d0d0d;   /* dark ink on the blue → 5.34:1 */
       }
     }
     :root[data-theme="dark"] {
@@ -58,6 +109,8 @@ const { title, description } = Astro.props;
       --series-1: #3987e5;
       --accent-warm: #e66767;
       --good: #0ca30c;
+      --link: #3987e5;
+      --link-ink: #0d0d0d;   /* dark ink on the blue → 5.34:1 */
     }
 
     * { box-sizing: border-box; }
@@ -71,7 +124,7 @@ const { title, description } = Astro.props;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
-    a { color: var(--series-1); }
+    a { color: var(--link); }
     .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
     section { padding: 56px 0; border-top: 1px solid var(--border); }
     section:first-of-type { border-top: 0; }
@@ -93,25 +146,80 @@ const { title, description } = Astro.props;
     }
     .btn {
       display: inline-block; text-decoration: none; font-size: 14px; font-weight: 500;
-      border: 1px solid var(--border); border-radius: 8px; padding: 9px 16px;
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px;
       color: var(--text-primary); background: var(--surface-1);
     }
-    .btn:hover { border-color: var(--series-1); }
-    .btn-primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+    .btn:hover { border-color: var(--link); }
+    .btn-primary { background: var(--link); border-color: var(--link); color: var(--link-ink); }
     .btn-primary:hover { opacity: 0.92; }
     footer { padding: 40px 0 64px; color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--border); }
     #themeToggle {
       position: fixed; top: 16px; right: 16px; z-index: 20;
       background: var(--surface-1); color: var(--text-secondary);
       border: 1px solid var(--border); border-radius: 8px;
-      width: 38px; height: 38px; font-size: 15px; cursor: pointer;
+      width: 44px; height: 44px; font-size: 15px; cursor: pointer;
     }
-    @media (max-width: 640px) { section { padding: 40px 0; } }
+    /* ── Navigation ─────────────────────────────────────── */
+    .skip {
+      position: absolute; left: -9999px; top: 0; z-index: 40;
+      background: var(--surface-1); color: var(--text-primary);
+      padding: 12px 18px; border: 1px solid var(--link); border-radius: 8px;
+    }
+    .skip:focus { left: 12px; top: 12px; }
+
+    .site-nav {
+      position: sticky; top: 0; z-index: 15;
+      background: color-mix(in srgb, var(--plane) 88%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      /* Room for the fixed theme toggle at the right edge. */
+      padding-right: 74px;
+    }
+    .nav-home {
+      font-weight: 600; font-size: 15px; text-decoration: none;
+      color: var(--text-primary); padding: 14px 0;
+    }
+    .site-nav nav { display: flex; gap: 4px; }
+    .site-nav nav a {
+      font-size: 14.5px; text-decoration: none; color: var(--text-secondary);
+      padding: 14px 10px; border-bottom: 2px solid transparent;
+    }
+    .site-nav nav a:hover { color: var(--text-primary); }
+    .site-nav nav a[aria-current="page"] {
+      color: var(--text-primary); border-bottom-color: var(--link);
+    }
+    /* The toggle is fixed, so keep it level with the nav bar. */
+    #themeToggle { top: 9px; }
+
+    @media (max-width: 640px) {
+      section { padding: 40px 0; }
+      .nav-inner { padding-right: 66px; }
+      .site-nav nav a { padding: 14px 7px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <div class="wrap nav-inner">
+      <a class="nav-home" href="/" aria-current={isCurrent('/') ? 'page' : undefined}>{profile.short}</a>
+      <nav aria-label="Primary">
+        {nav.map((n) => (
+          <a href={n.href} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
   <button id="themeToggle" aria-label="Toggle colour theme" title="Toggle theme">◐</button>
-  <slot />
+
+  <main id="main">
+    <slot />
+  </main>
   <script is:inline>
     (function () {
       var root = document.documentElement;

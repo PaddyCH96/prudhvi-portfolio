@@ -1,8 +1,12 @@
 ---
-import { churnSegments } from '../data/profile.js';
-const baseline = churnSegments.find((s) => s.key === 'overall').rate;
+import { churnSegments } from '../data/index.js';
+// The baseline anchors every comparison in this chart, so its absence is a
+// data error worth failing the build for — not something to render around.
+const overall = churnSegments.find((s) => s.key === 'overall');
+if (!overall) throw new Error("churnSegments is missing the 'overall' baseline segment");
+const baseline = overall.rate;
 const max = Math.max(...churnSegments.map((s) => s.rate));
-const scale = (v) => (v / (max * 1.12)) * 100;
+const scale = (v: number) => (v / (max * 1.12)) * 100;
 ---
 <section id="demo">
   <div class="wrap">
@@ -78,9 +82,10 @@ const scale = (v) => (v / (max * 1.12)) * 100;
   .chart-title { font-size:14px; font-weight:600; color:var(--text-primary); }
   .mini {
     font-size:12.5px; color:var(--text-secondary); background:transparent;
-    border:1px solid var(--border); border-radius:6px; padding:4px 10px; cursor:pointer;
+    border:1px solid var(--border); border-radius:6px; padding:0 12px; cursor:pointer;
+    min-height:44px;   /* WCAG 2.5.5 target size — set explicitly, not via padding math */
   }
-  .mini:hover { border-color:var(--series-1); }
+  .mini:hover { border-color:var(--link); }
 
   .row {
     display:grid; grid-template-columns: 190px 1fr; align-items:center; gap:14px;

@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { profile } from '../../data/index.js';
+
+// import.meta.env.PROD is true for `astro build`, false for `astro dev`,
+// so drafts are visible while writing and invisible once shipped.
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const title = `Writing — ${profile.name}`;
+const description =
+  'Notes on analytics, forecasting and building data products — mostly about the parts that went wrong.';
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title={title} description={description}>
+  <section id="top">
+    <div class="wrap">
+      <h1>Writing</h1>
+      <p class="lead">
+        Notes on analytics, forecasting and building data products — mostly
+        about the parts that went wrong.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      {posts.length === 0 ? (
+        <div class="empty">
+          <p class="body">
+            Nothing published yet. The first posts are in progress — in the
+            meantime, the <a href="/projects/">case studies</a> cover how these
+            projects were actually built.
+          </p>
+        </div>
+      ) : (
+        <ul class="posts">
+          {posts.map((post) => (
+            <li class="post">
+              <p class="post-meta">
+                <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+                {post.data.draft && <span class="draft-flag">Draft</span>}
+              </p>
+              <h2 class="post-title">
+                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+              </h2>
+              <p class="post-desc">{post.data.description}</p>
+              {post.data.tags.length > 0 && (
+                <ul class="chips">{post.data.tags.map((t) => <li>{t}</li>)}</ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a href="/">← {profile.name}</a> · <a href="/projects/">Work</a> · <a href="/about/">About</a>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  h1 { font-size: clamp(30px, 4.5vw, 42px); }
+  .lead { font-size: 18px; max-width: 58ch; color: var(--text-primary); }
+  .body { font-size: 17px; line-height: 1.7; max-width: 680px; }
+
+  .empty {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px;
+  }
+  .empty .body { margin: 0; }
+
+  .posts { list-style: none; padding: 0; margin: 0; max-width: 720px; }
+  .post { padding: 26px 0; border-bottom: 1px solid var(--border); }
+  .post:first-child { padding-top: 0; }
+  .post-meta {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--muted); margin-bottom: 8px;
+  }
+  .draft-flag {
+    font-size: 11.5px; color: var(--accent-warm);
+    border: 1px solid var(--accent-warm); border-radius: 999px; padding: 2px 9px;
+  }
+  .post-title {
+    font-size: 21px; margin-bottom: 8px;
+    text-transform: none; letter-spacing: -0.01em;
+    font-weight: 600; color: var(--text-primary);
+  }
+  .post-title a { text-decoration: none; }
+  .post-title a:hover { text-decoration: underline; }
+  .post-desc { font-size: 15.5px; max-width: 64ch; }
+</style>

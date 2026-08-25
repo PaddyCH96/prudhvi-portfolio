@@ -2,3 +2,7 @@ node_modules/
 dist/
 .astro/
 .DS_Store
+
+# Local working material — not part of the published site.
+.planning/
+.claude/

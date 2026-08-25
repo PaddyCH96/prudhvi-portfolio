@@ -1,12 +1,12 @@
 ---
-import { profile, stats, projects, experience, skills, education } from '../data/profile.js';
+import { profile, stats, featuredProjects, experience, skills, education } from '../data/index.js';
 ---
 
 <!-- ── Hero ───────────────────────────────────────────────── -->
 <section id="top" style="padding-top:72px;">
   <div class="wrap">
     <p style="color:var(--muted); font-size:14px; margin-bottom:6px;">{profile.location}</p>
-    <h1 style="font-size:clamp(32px,5vw,46px); margin-bottom:10px;">{profile.name}</h1>
+    <h1 style="font-size:clamp(32px,5vw,46px); margin-bottom:10px;">{profile.display}</h1>
     <p style="font-size:19px; color:var(--text-primary); margin-bottom:16px;">{profile.headline}</p>
     <p style="max-width:60ch; font-size:16.5px;">{profile.blurb}</p>
 
@@ -33,16 +33,21 @@ import { profile, stats, projects, experience, skills, education } from '../data
   <div class="wrap">
     <h2>Selected work</h2>
     <div class="grid2">
-      {projects.map((p) => (
+      {featuredProjects.map((p) => (
         <article class="card">
           <p style="font-size:12px; color:var(--muted); margin-bottom:6px; letter-spacing:.04em; text-transform:uppercase;">{p.tag}</p>
-          <h3 style="font-size:18px;"><a href={p.url} style="text-decoration:none;">{p.name} ↗</a></h3>
+          <h3 style="font-size:18px;"><a href={`/projects/${p.slug}/`} style="text-decoration:none;">{p.name}</a></h3>
           <p style="font-size:14.5px;">{p.summary}</p>
           <ul>{p.points.map((pt) => <li style="font-size:14px;">{pt}</li>)}</ul>
           <ul class="chips">{p.stack.map((t) => <li>{t}</li>)}</ul>
+          <p class="card-links">
+            <a href={`/projects/${p.slug}/`}>Read the case study →</a>
+            {p.url && <a href={p.url} rel="noopener">Code ↗</a>}
+          </p>
         </article>
       ))}
     </div>
+    <p class="see-all"><a href="/projects/">See all 8 projects →</a></p>
   </div>
 </section>
 
@@ -112,6 +117,14 @@ import { profile, stats, projects, experience, skills, education } from '../data
 </footer>
 
 <style>
+  /* These are standalone actions, not inline prose links, so they carry a
+     44px tap target. Negative margin keeps the visual spacing unchanged. */
+  .see-all { margin:22px 0 0; font-size:15px; font-weight:500; }
+  .see-all a { text-decoration:none; }
+  .see-all a:hover { text-decoration:underline; }
+  .card-links { display:flex; gap:16px; margin:5px 0 -11px; font-size:14px; font-weight:500; }
+  .card-links a { text-decoration:none; padding:11px 0; }
+  .card-links a:hover { text-decoration:underline; }
   .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px; }
   .stat { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
   .stat-v { display:block; font-size:24px; font-weight:600; color:var(--text-primary); letter-spacing:-0.02em; }

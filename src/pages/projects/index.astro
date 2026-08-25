@@ -1,0 +1,144 @@
+---
+// Full project catalogue with category filtering.
+// Filtering is progressive enhancement: without JS every project is visible
+// and the filter bar is hidden, so the page never depends on the script.
+import Base from '../../layouts/Base.astro';
+import { projects, categories, profile } from '../../data/index.js';
+
+const title = `Work — ${profile.name}`;
+const description =
+  'Eight projects across analytics, full-stack engineering and applied AI — production forecasting, revenue-risk analysis, and AI products shipped end to end.';
+
+const counts = Object.fromEntries(
+  categories.map((c) => [c, projects.filter((p) => p.category === c).length]),
+);
+---
+<Base title={title} description={description}>
+  <section id="top">
+    <div class="wrap">
+      <h1>Work</h1>
+      <p class="lead">
+        Eight projects, shipped end to end. Each one has a case study — the
+        problem, what I did, and what changed.
+      </p>
+
+      <div id="filters" class="filters" hidden>
+        <button class="chip is-on" data-filter="all" aria-pressed="true">
+          All <span class="count">{projects.length}</span>
+        </button>
+        {categories.map((c) => (
+          <button class="chip" data-filter={c} aria-pressed="false">
+            {c} <span class="count">{counts[c]}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p id="resultCount" class="result-count" aria-live="polite"></p>
+
+      <div class="grid" id="grid">
+        {projects.map((p) => (
+          <article class="card item" data-category={p.category}>
+            <p class="card-tag">{p.tag}</p>
+            <h2 class="card-name">
+              <a href={`/projects/${p.slug}/`}>{p.name}</a>
+            </h2>
+            <p class="card-sum">{p.summary}</p>
+            <ul class="chips">{p.stack.slice(0, 5).map((t) => <li>{t}</li>)}</ul>
+            <p class="card-links">
+              <a href={`/projects/${p.slug}/`}>Read the case study →</a>
+              {p.url && <a href={p.url} rel="noopener">Code ↗</a>}
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a href="/">← {profile.name}</a> · <a href={`mailto:${profile.email}`}>{profile.email}</a>
+    </div>
+  </footer>
+</Base>
+
+<script>
+  const filters = document.getElementById('filters');
+  const grid = document.getElementById('grid');
+  const readout = document.getElementById('resultCount');
+  if (filters && grid && readout) {
+    // Only reveal the filter UI once the script is running — otherwise a
+    // no-JS visitor sees buttons that do nothing.
+    filters.hidden = false;
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('.item'));
+
+    const apply = (value: string) => {
+      let shown = 0;
+      for (const el of items) {
+        const match = value === 'all' || el.dataset.category === value;
+        el.hidden = !match;
+        if (match) shown++;
+      }
+      readout.textContent =
+        value === 'all'
+          ? `${shown} projects`
+          : `${shown} ${shown === 1 ? 'project' : 'projects'} in ${value}`;
+    };
+
+    filters.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
+      if (!btn) return;
+      for (const b of filters.querySelectorAll('.chip')) {
+        const on = b === btn;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', String(on));
+      }
+      apply(btn.dataset.filter ?? 'all');
+    });
+
+    apply('all');
+  }
+</script>
+
+<style>
+  h1 { font-size: clamp(30px, 4.5vw, 42px); }
+  .lead { font-size: 18px; max-width: 58ch; color: var(--text-primary); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    min-height: 44px; padding: 0 15px;
+    font-size: 14px; font-family: inherit; cursor: pointer;
+    color: var(--text-secondary); background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 999px;
+  }
+  .chip:hover { border-color: var(--link); color: var(--text-primary); }
+  .chip.is-on {
+    background: var(--link); border-color: var(--link); color: var(--link-ink);
+  }
+  /* No opacity here: at 0.75 the count fell to 3.74:1 on the active chip. */
+  .count { font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  .result-count { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .card-tag {
+    font-size: 12px; color: var(--muted); margin-bottom: 6px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .card-name {
+    font-size: 18px; margin-bottom: 8px;
+    text-transform: none; letter-spacing: -0.01em;
+    font-weight: 600; color: var(--text-primary);
+  }
+  .card-name a { text-decoration: none; }
+  .card-sum { font-size: 14.5px; }
+  .card-links { display: flex; gap: 16px; margin: 6px 0 -11px; font-size: 14px; font-weight: 500; }
+  .card-links a { text-decoration: none; padding: 11px 0; }
+  .card-links a:hover { text-decoration: underline; }
+
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+</style>

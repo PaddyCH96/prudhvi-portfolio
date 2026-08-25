@@ -1,0 +1,168 @@
+---
+// Case study template. One file generates a page per project in
+// src/data/projects.js — add a project there and its page appears.
+import Base from '../../layouts/Base.astro';
+import { projects, profile } from '../../data/index.js';
+
+export function getStaticPaths() {
+  return projects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      // Sibling projects, in file order, wrapping at the ends. Every project
+      // is reachable from every other, so nothing is orphaned before the
+      // /projects index lands in Phase 2.
+      siblings: [...projects.slice(i + 1), ...projects.slice(0, i)],
+    },
+  }));
+}
+
+const { project, siblings } = Astro.props;
+const title = `${project.name} — ${profile.name}`;
+const description = project.summary;
+---
+<Base title={title} description={description} ogType="article">
+  <article>
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <section id="top">
+      <div class="wrap">
+        <a class="back" href="/projects/">← All work</a>
+
+        <ul class="meta chips">
+          <li>{project.category}</li>
+          <li>{project.tag}</li>
+          <li class={project.status === 'Shipped' ? 'status-shipped' : 'status-wip'}>{project.status}</li>
+        </ul>
+
+        <h1>{project.name}</h1>
+        <p class="lead">{project.summary}</p>
+
+        <div class="actions">
+          {project.url
+            ? <a class="btn btn-primary" href={project.url} rel="noopener">View the code ↗</a>
+            : <span class="btn btn-quiet">Source not public</span>}
+          <a class="btn" href="/projects/">All work</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── The spine: problem → approach → outcome ─────────── -->
+    <section>
+      <div class="wrap narrow">
+        <h2>The problem</h2>
+        <p class="body">{project.problem}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap narrow">
+        <h2>What I did</h2>
+        <p class="body">{project.approach}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap narrow">
+        <h2>What changed</h2>
+        <p class="body outcome">{project.outcome}</p>
+      </div>
+    </section>
+
+    <!-- ── Proof ──────────────────────────────────────────── -->
+    <section>
+      <div class="wrap narrow">
+        <h2>Detail</h2>
+        <ul class="proof">
+          {project.points.map((pt) => <li>{pt}</li>)}
+        </ul>
+
+        <h3 class="stack-label">Built with</h3>
+        <ul class="chips">
+          {project.stack.map((t) => <li>{t}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── Keep reading ───────────────────────────────────── -->
+    <section>
+      <div class="wrap">
+        <h2>More work</h2>
+        <div class="more">
+          {siblings.map((s) => (
+            <a class="more-card" href={`/projects/${s.slug}/`}>
+              <span class="more-tag">{s.category}</span>
+              <span class="more-name">{s.name}</span>
+              <span class="more-sum">{s.summary}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <a href="/">← {profile.name}</a> · <a href={`mailto:${profile.email}`}>{profile.email}</a>
+      </div>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  /* Vertical padding brings the tap target to 44px (WCAG 2.5.5 / iOS HIG);
+     the negative margin keeps the text on the same optical baseline. */
+  .back {
+    display: inline-block; font-size: 14px; text-decoration: none;
+    padding: 11px 0; margin: -11px 0 9px;
+  }
+  .back:hover { text-decoration: underline; }
+
+  .meta { margin: 0 0 16px; }
+  .meta li { font-size: 12px; letter-spacing: 0.03em; }
+  .status-shipped { color: var(--good); border-color: var(--good) !important; }
+  .status-wip { color: var(--accent-warm); border-color: var(--accent-warm) !important; }
+
+  h1 { font-size: clamp(30px, 4.5vw, 42px); margin-bottom: 14px; }
+  .lead { font-size: 19px; max-width: 62ch; color: var(--text-primary); }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  /* Non-interactive stand-in when there is no public repo. Reads as a
+     statement of fact, not a button that failed. */
+  .btn-quiet { color: var(--muted); cursor: default; }
+
+  /* Reading measure — case studies are prose, not a dashboard.
+     Constrain the CONTENT, not the .wrap: overriding .wrap's max-width
+     re-centres the block and knocks its left edge off the h1's axis. */
+  .narrow > * { max-width: 680px; }
+  .body { font-size: 17px; line-height: 1.7; }
+
+  /* The outcome carries the number, so it gets the emphasis. */
+  .outcome {
+    color: var(--text-primary);
+    border-left: 3px solid var(--series-1);
+    padding-left: 18px;
+  }
+
+  .proof { padding-left: 18px; }
+  .proof li { font-size: 15.5px; margin-bottom: 10px; }
+  .stack-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); font-weight: 600; margin: 28px 0 0;
+  }
+
+  .more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .more-card {
+    display: flex; flex-direction: column; gap: 6px;
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    text-decoration: none; color: var(--text-primary);
+  }
+  .more-card:hover { border-color: var(--link); }
+  .more-tag { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .more-name { font-size: 15.5px; font-weight: 600; }
+  .more-sum {
+    font-size: 13.5px; color: var(--text-secondary); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  @media (max-width: 860px) { .more { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .more { grid-template-columns: 1fr; } .lead { font-size: 17px; } }
+</style>
