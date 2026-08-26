@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PK">
+  <title>PK</title>
+  <!--
+    PK monogram — a committed, hand-authored design artifact, NOT a build output.
+    Only the raster derivatives (favicon.ico, apple-touch-icon.png, icon-192/512.png)
+    are generated; nothing converts Manrope glyphs to paths at build time.
+
+    Letterforms derived from Manrope Bold, then hand-tuned: tracking tightened
+    (the P/K gap is 22 units, ~0.04em under the natural fit) and stems thickened
+    ~6% to 34 units so the forms survive 16px rasterisation.
+
+    Paths only. A live glyph element would reintroduce a font-resolution
+    dependency at raster time, which is exactly the risk this construction removes.
+
+    Colours are literal hex, never a CSS custom property: an SVG rasterised by
+    resvg has no cascade. Both values are theme-invariant — the tile carries its
+    own background so the mark reads identically on a light or a dark tab strip,
+    and there is no theme-responsive logic anywhere in this file. The token each
+    hex corresponds to is recorded verbatim in the desc element below; it cannot
+    live in this comment because XML forbids a double hyphen inside one, and a
+    CSS custom property name opens with exactly that.
+
+    Geometry: cap height 236 = 46% of the 512 tile, 14% side margins (x 72..440),
+    optically centred (y 132..368, nudged 6 units above the mathematical centre).
+    Full-bleed square, no corner radius — the OS and the browser apply their own masks.
+  -->
+  <desc>Token mapping: #161615 is --hero-tile (tile fill). #f4f3ef is --hero-tile-ink (knocked-out letterforms, 16.31:1 contrast on the tile). Both are theme-invariant.</desc>
+  <rect width="512" height="512" fill="#161615"/>
+  <path fill="#f4f3ef" fill-rule="evenodd" d="M 72 132 L 170 132 C 210 132 236 156 236 213 C 236 270 210 294 170 294 L 106 294 L 106 368 L 72 368 Z M 106 166 L 168 166 C 188 166 200 187 200 213 C 200 239 188 260 168 260 L 106 260 Z"/>
+  <path fill="#f4f3ef" d="M 258 132 L 292 132 L 292 208 L 440 132 L 440 172 L 292 248 L 440 322 L 440 368 L 292 294 L 292 368 L 258 368 Z"/>
+</svg>
