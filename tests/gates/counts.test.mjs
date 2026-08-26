@@ -10,9 +10,9 @@
 // hardcoded count is an authoring defect: it is wrong the moment it is typed,
 // not the moment it is rendered.
 //
-// Note for plan 03-07: src/components/Sections.astro carries the fourth
-// literal ("See all 8 projects"). That file is owned by 03-07 and will add its
-// own subtest here.
+// The fourth literal lived in src/components/Sections.astro ("See all 8
+// projects"). Plan 03-07 owns that file, derived the string from projectCount
+// and added the subtest below — closing the D-24 cascade.
 // ─────────────────────────────────────────────────────────────
 
 import { test, describe } from 'node:test';
@@ -27,6 +27,7 @@ const FILES = [
   'src/data/profile.js',
   'src/data/about.js',
   'src/pages/projects/index.astro',
+  'src/components/Sections.astro',
 ];
 
 /**
@@ -65,6 +66,25 @@ describe('project counts are derived, not literal', () => {
       );
     });
   }
+
+  test('the see-all link states no literal count at all', () => {
+    // Broader than COUNT_PROSE: "See all 5 projects" would pass the eight-check
+    // and still be wrong the next time the catalogue changes. Any digit here is
+    // the defect, not one particular digit.
+    const code = codeOf('src/components/Sections.astro');
+    assert.equal(
+      /See all \d/.test(code),
+      false,
+      'src/components/Sections.astro types a digit into the see-all link. Interpolate ' +
+        'projectCount — the string must not be able to go stale when a project is added.'
+    );
+    assert.match(
+      code,
+      /projectCount/,
+      'src/components/Sections.astro no longer references projectCount. The see-all link ' +
+        'is derived from the catalogue size, not authored.'
+    );
+  });
 
   test('the hero stat reads from projects.length', () => {
     assert.equal(stats.length, 4, 'the hero stat row is four cards; that shape is fixed.');

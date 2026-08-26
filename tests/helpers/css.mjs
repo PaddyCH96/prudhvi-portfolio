@@ -50,8 +50,6 @@ export const EXEMPT = [
 
 export const SOURCE = 'src/components/Sections.astro';
 
-const ALLOWED_SIZES = new Set(['clamp(34px, 4.6vw, 48px)', '20px', '16px', '13px']);
-const ALLOWED_WEIGHTS = new Set(['400', '600']);
 
 /**
  * The scoped <style> block with comment lines stripped. A comment naming a

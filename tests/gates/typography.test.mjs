@@ -14,7 +14,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 
-import { GATED, EXEMPT, SOURCE, stylesheetOf, rulesOf, isGated } from '../helpers/css.mjs';
+import { EXEMPT, SOURCE, stylesheetOf, rulesOf, isGated } from '../helpers/css.mjs';
 
 const ALLOWED_SIZES = new Set(['clamp(34px, 4.6vw, 48px)', '20px', '16px', '13px']);
 const ALLOWED_WEIGHTS = new Set(['400', '600']);
