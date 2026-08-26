@@ -326,7 +326,16 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
   .skillgroup { font-size:13.5px; color:var(--text-primary); font-weight:500; }
 
   @media (max-width:760px) {
-    .stats { grid-template-columns:repeat(2,1fr); }
+    /* D-04's acceptance test is that all four stat cards stay above the fold
+       at 375px, so the hero compresses on the 4-point scale rather than
+       dropping a card. Every value below is still a multiple of 4. */
+    .hero { padding-top: 32px; padding-bottom: 48px; }
+    .hero-title { margin-bottom: 8px; }
+    .hero-headline { margin-bottom: 8px; }
+    .hero-actions { margin-top: 24px; gap: 16px; }
+    .hero-secondary { gap: 16px; }
+    .stats { grid-template-columns:repeat(2,1fr); margin-top: 24px; gap: 8px; }
+    .stat { padding: 12px; }
     .grid2 { grid-template-columns:1fr; }
     .job, .skillrow { grid-template-columns:1fr; gap:8px; }
   }
