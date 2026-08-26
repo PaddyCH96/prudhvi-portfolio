@@ -1,0 +1,14 @@
+{
+  "root": {
+    "--series-1": "#2a78d6",
+    "--accent-warm": "#e34948"
+  },
+  "prefersDark": {
+    "--series-1": "#3987e5",
+    "--accent-warm": "#e66767"
+  },
+  "dataThemeDark": {
+    "--series-1": "#3987e5",
+    "--accent-warm": "#e66767"
+  }
+}
