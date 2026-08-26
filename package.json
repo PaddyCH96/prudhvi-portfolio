@@ -8,7 +8,9 @@
     "build": "astro check && astro build",
     "build:fast": "astro build",
     "check": "astro check",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test:gates": "node --test tests/gates/",
+    "verify:visual": "node tests/visual/sweep.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",
@@ -17,6 +19,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@resvg/resvg-js": "2.6.2",
+    "playwright": "1.62.1",
+    "png-to-ico": "3.0.2",
+    "satori": "0.33.4",
     "typescript": "^6.0.3"
   }
 }

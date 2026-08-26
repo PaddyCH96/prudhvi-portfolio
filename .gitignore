@@ -6,3 +6,13 @@ dist/
 # Local working material — not part of the published site.
 .planning/
 .claude/
+
+# Generated at build — reproducible from committed inputs, do not commit.
+public/og/
+public/favicon.svg
+public/favicon.ico
+public/apple-touch-icon.png
+public/icon-192.png
+public/icon-512.png
+public/site.webmanifest
+src/generated/
