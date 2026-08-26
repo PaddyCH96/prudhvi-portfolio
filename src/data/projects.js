@@ -121,7 +121,7 @@ export const projects = [
     category: 'AI',
     featured: true,
     status: 'Alpha',
-    url: null,   // not pushed to GitHub yet — no remote configured
+    url: 'https://github.com/PaddyCH96/ecommerce-ai-analytics',
     summary:
       'A local-first analytics platform for DTC brands — semantic KPI calculations with AI-generated insights, running entirely on your own machine.',
     problem:
@@ -217,7 +217,7 @@ export const projects = [
     category: 'Full-stack',
     featured: false,
     status: 'In progress',
-    url: null,   // repo is private / not yet published
+    url: 'https://github.com/PaddyCH96/compliance-os',
     summary:
       'GST compliance automation for Indian SMEs — invoice parsing, anomaly detection, and a rules engine that scores filing risk before it becomes a penalty.',
     problem:
