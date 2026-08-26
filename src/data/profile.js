@@ -6,6 +6,8 @@
 // Do not add a claim that isn't backed by one of those.
 // ─────────────────────────────────────────────────────────────
 
+import { projectCount } from './projects.js';
+
 export const profile = {
   name: 'Prudhvi Kadamuthuri',
   // Shown in the hero so global recruiters have a pronounceable handle
@@ -32,6 +34,9 @@ export const site = {
 export const stats = [
   { value: '5', unit: 'yrs', label: 'Analytics experience' },
   { value: '700K+', label: 'Records modelled' },
-  { value: '8', label: 'Projects shipped' },
+  // Derived, not literal: the catalogue changed size under D-24 and this
+  // string went stale the same day. Anything that counts projects reads from
+  // projects.length so the next catalogue edit cannot leave a wrong number here.
+  { value: String(projectCount), label: 'Projects shipped' },
   { value: '$139K', unit: '/mo', label: 'Revenue risk quantified' },
 ];
