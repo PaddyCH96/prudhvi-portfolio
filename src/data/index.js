@@ -7,3 +7,4 @@ export { projects, featuredProjects, categories, projectBySlug, relatedProjects,
 export { experience, skills, education, certifications } from './experience.js';
 export { churnSegments } from './churn.js';
 export { about } from './about.js';
+export { ogRoutes, projectRoutes, staticRoutes, OG_ALT_MAX } from './og-routes.js';
