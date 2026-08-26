@@ -41,6 +41,25 @@ const FOLDS = [667, 812];
 // Expected related-row columns per width (03-UI-SPEC § Responsive Contract).
 const RELATED_COLUMNS = { 375: 1, 768: 2, 1280: 3 };
 
+// Controls this phase restyled, and therefore the ones C-9's "height is
+// declared, never accumulated from padding" rule binds. A padding-derived
+// control that happens to land on 44.39px today drops under the floor the
+// moment a font-size or line-height moves — that silent regression is the
+// specific failure this second check exists to catch.
+//
+// Everything else on the page is measured for RENDERED height (which is the
+// accessibility requirement) but not for a declared min-height, because it
+// belongs to a surface this phase did not retypeset. The exemption list
+// mirrors tests/helpers/css.mjs EXEMPT and carries the same reasons.
+const MIN_HEIGHT_SCOPE = [
+  '.hero-cta',
+  '.hero-secondary a',
+  '.see-all a',
+  '.more-card',
+  '.all-projects a',
+  '.back',
+];
+
 // ── Static server over the built output ──────────────────────
 // Binds an ephemeral port on localhost and serves only already-public built
 // output, torn down on exit (T-03-45).
@@ -213,30 +232,46 @@ async function main() {
 
           // ── C-9 tap targets ───────────────────────────────
           if (width === 375) {
-            const controls = await page.evaluate((MIN) => {
-              const out = [];
-              for (const el of document.querySelectorAll('a, button, [role="button"]')) {
-                if (!el.getClientRects().length) continue; // not rendered
-                const r = el.getBoundingClientRect();
-                const cs = getComputedStyle(el);
-                const declared = parseFloat(cs.minHeight);
-                const cls =
-                  el.className && typeof el.className === 'string' && el.className.trim()
-                    ? '.' + el.className.trim().split(/\s+/).join('.')
-                    : el.tagName.toLowerCase() + (el.id ? '#' + el.id : '');
-                out.push({
-                  label: cls,
-                  height: Math.round(r.height * 100) / 100,
-                  minHeight: Number.isFinite(declared) ? declared : 0,
-                  under: r.height < MIN - 0.01,
-                  undeclared: !(Number.isFinite(declared) && declared >= MIN),
-                });
-              }
-              return out;
-            }, TAP_MIN);
+            const tapProbe = await page.evaluate(
+              ({ MIN, SCOPE }) => {
+                const out = [];
+                const inline = [];
+                for (const el of document.querySelectorAll('a, button, [role="button"]')) {
+                  if (!el.getClientRects().length) continue; // not rendered
+                  const cs = getComputedStyle(el);
+                  const cls =
+                    el.className && typeof el.className === 'string' && el.className.trim()
+                      ? '.' + el.className.trim().split(/\s+/).join('.')
+                      : el.tagName.toLowerCase() + (el.id ? '#' + el.id : '');
+                  // WCAG 2.5.8 "inline" exception: a link sitting in a
+                  // sentence is sized by the line-height of the non-target
+                  // text around it and is explicitly out of scope for the
+                  // target-size rule. A real control is blockified
+                  // (inline-flex, inline-block, block, or a flex/grid item).
+                  if (cs.display === 'inline') {
+                    inline.push(cls);
+                    continue;
+                  }
+                  const r = el.getBoundingClientRect();
+                  const declared = parseFloat(cs.minHeight);
+                  out.push({
+                    label: cls,
+                    height: Math.round(r.height * 100) / 100,
+                    minHeight: Number.isFinite(declared) ? declared : 0,
+                    under: r.height < MIN - 0.01,
+                    scoped: SCOPE.some((s) => el.matches(s)),
+                    undeclared: !(Number.isFinite(declared) && declared >= MIN),
+                  });
+                }
+                return { out, inlineCount: inline.length };
+              },
+              { MIN: TAP_MIN, SCOPE: MIN_HEIGHT_SCOPE }
+            );
+            const controls = tapProbe.out;
             tapControlsSeen += controls.length;
             const under = controls.filter((c) => c.under);
-            const undeclared = controls.filter((c) => c.undeclared);
+            const undeclared = controls.filter((c) => c.scoped && c.undeclared);
+            const padDerived = controls.filter((c) => !c.scoped && c.undeclared);
             record(
               route,
               width,
@@ -244,6 +279,7 @@ async function main() {
               'tap >=44px',
               under.length === 0,
               `${controls.length} controls, ${under.length} under` +
+                ` (${tapProbe.inlineCount} inline links exempt, WCAG 2.5.8)` +
                 (under.length ? ': ' + under.map((c) => `${c.label} ${c.height}px`).join(', ') : '')
             );
             record(
@@ -252,13 +288,13 @@ async function main() {
               theme,
               'tap min-height declared',
               undeclared.length === 0,
-              `${undeclared.length} not backed by min-height>=44` +
+              `${undeclared.length} in-scope controls not backed by min-height>=44` +
                 (undeclared.length
                   ? ': ' +
                     undeclared
                       .map((c) => `${c.label} (min-height:${c.minHeight}px, renders ${c.height}px)`)
                       .join(', ')
-                  : '')
+                  : ` (${padDerived.length} padding-derived on surfaces this phase did not retypeset)`)
             );
           }
 
@@ -339,12 +375,35 @@ async function main() {
                 banned.set(norm(getComputedStyle(probe).color), token);
                 probe.remove();
               }
-              const offenders = [];
               const hero = document.querySelector('#top');
+
+              // The prohibition is about the hero FIELD — text sitting
+              // directly on the composited gradient/veil/grain, where --muted
+              // measures 3.86:1 and --link 3.91:1. The stat cards are opaque
+              // var(--surface-1) on purpose (03-UI-SPEC § Color; the CSS
+              // comment says so too), and --muted clears AA there at 5.11:1
+              // light / 4.85:1 dark. So a text node is only on the field if
+              // nothing between it and #top paints an opaque background.
+              const onHeroField = (el) => {
+                for (let n = el; n && n !== hero; n = n.parentElement) {
+                  const m = getComputedStyle(n).backgroundColor.match(/^rgba?\(([^)]+)\)/);
+                  if (m) {
+                    const parts = m[1].split(',').map(Number);
+                    const alpha = parts.length > 3 ? parts[3] : 1;
+                    if (alpha >= 1) return false;
+                  }
+                }
+                return true;
+              };
+
+              const offenders = [];
+              let onField = 0;
               const walker = document.createTreeWalker(hero, NodeFilter.SHOW_TEXT);
               for (let n = walker.nextNode(); n; n = walker.nextNode()) {
                 if (!n.nodeValue.trim()) continue;
                 const el = n.parentElement;
+                if (!onHeroField(el)) continue;
+                onField++;
                 const c = norm(getComputedStyle(el).color);
                 if (banned.has(c)) {
                   offenders.push(
@@ -352,7 +411,7 @@ async function main() {
                   );
                 }
               }
-              return { offenders, banned: [...banned.keys()] };
+              return { offenders, onField, banned: [...banned.keys()] };
             });
             record(
               route,
@@ -362,7 +421,7 @@ async function main() {
               walk.offenders.length === 0,
               walk.offenders.length
                 ? walk.offenders.join('; ')
-                : `0 nodes resolve to --muted/--link (${walk.banned.join(', ')})`
+                : `0 of ${walk.onField} hero-field text nodes resolve to --muted/--link (${walk.banned.join(', ')})`
             );
 
             // Hover is a state the static walk cannot reach.

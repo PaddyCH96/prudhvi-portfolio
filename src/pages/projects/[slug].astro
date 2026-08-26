@@ -112,8 +112,13 @@ const description = project.summary;
 <style>
   /* Vertical padding brings the tap target to 44px (WCAG 2.5.5 / iOS HIG);
      the negative margin keeps the text on the same optical baseline. */
+  /* Height is declared, not accumulated from padding (C-9). Without the
+   * min-height this control renders 44.39px purely because 14px text at the
+   * inherited line-height plus 22px of padding happens to clear the floor —
+   * it would silently drop under 44 the moment either moves. */
   .back {
-    display: inline-block; font-size: 14px; text-decoration: none;
+    display: inline-flex; align-items: center; min-height: 44px;
+    font-size: 14px; text-decoration: none;
     padding: 11px 0; margin: -11px 0 9px;
   }
   .back:hover { text-decoration: underline; }
