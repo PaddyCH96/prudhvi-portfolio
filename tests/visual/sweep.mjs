@@ -327,7 +327,7 @@ async function main() {
             // hero field but outside any glyph, and score the real pixel.
             // Blending order and stacking contexts can diverge from the
             // arithmetic, so the table is a prediction and this is the proof.
-            for (const sel of ['.hero-title', '.hero-blurb']) {
+            for (const sel of ['.hero-title', '.hero-blurb', '.hero-secondary a']) {
               const probe = await page.evaluate((s) => {
                 const el = document.querySelector(s);
                 const hero = document.querySelector('#top');
