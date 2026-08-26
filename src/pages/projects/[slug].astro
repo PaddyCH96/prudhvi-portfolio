@@ -2,22 +2,23 @@
 // Case study template. One file generates a page per project in
 // src/data/projects.js — add a project there and its page appears.
 import Base from '../../layouts/Base.astro';
-import { projects, profile } from '../../data/index.js';
+import { projects, profile, relatedProjects, projectCountWord } from '../../data/index.js';
 
 export function getStaticPaths() {
-  return projects.map((project, i) => ({
+  return projects.map((project) => ({
     params: { slug: project.slug },
     props: {
       project,
-      // Sibling projects, in file order, wrapping at the ends. Every project
-      // is reachable from every other, so nothing is orphaned before the
-      // /projects index lands in Phase 2.
-      siblings: [...projects.slice(i + 1), ...projects.slice(0, i)],
+      // Three related projects, same category first, chosen deterministically
+      // in the data module. Sibling-to-sibling coverage is not the orphan
+      // guarantee — /projects/ linking every case study is, and
+      // tests/gates/linkgraph.test.mjs proves it against dist/.
+      related: relatedProjects(project.slug),
     },
   }));
 }
 
-const { project, siblings } = Astro.props;
+const { project, related } = Astro.props;
 const title = `${project.name} — ${profile.name}`;
 const description = project.summary;
 ---
@@ -86,9 +87,9 @@ const description = project.summary;
     <!-- ── Keep reading ───────────────────────────────────── -->
     <section>
       <div class="wrap">
-        <h2>More work</h2>
+        <h2 class="more-label">Related work</h2>
         <div class="more">
-          {siblings.map((s) => (
+          {related.map((s) => (
             <a class="more-card" href={`/projects/${s.slug}/`}>
               <span class="more-tag">{s.category}</span>
               <span class="more-name">{s.name}</span>
@@ -96,6 +97,7 @@ const description = project.summary;
             </a>
           ))}
         </div>
+        <p class="all-projects"><a href="/projects/">{`All ${projectCountWord} projects →`}</a></p>
       </div>
     </section>
 
@@ -148,20 +150,42 @@ const description = project.summary;
     color: var(--muted); font-weight: 600; margin: 28px 0 0;
   }
 
-  .more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  /* Related row. Three cards, never seven — gated by
+     tests/gates/casestudy.test.mjs, which is the only DSGN-04 gate that reads
+     this file (typography/spacing exempt it, by agreement with plan 03-07). */
+  .more-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); font-weight: 600; margin: 0 0 16px;
+  }
+
+  .more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  /* Height is declared, not accumulated from padding (C-9). 88px is twice the
+     44px control floor and still on the 4px rhythm. */
   .more-card {
-    display: flex; flex-direction: column; gap: 6px;
+    display: flex; flex-direction: column; justify-content: center; gap: 8px;
+    min-height: 88px;
     background: var(--surface-1); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px;
+    border-radius: var(--radius); padding: 24px;
     text-decoration: none; color: var(--text-primary);
   }
   .more-card:hover { border-color: var(--link); }
-  .more-tag { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-  .more-name { font-size: 15.5px; font-weight: 600; }
+  /* --muted on the opaque --surface-1 card is 5.11:1 light / 4.85:1 dark.
+     Keep these cards opaque. */
+  .more-tag { font-size: 13px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .more-name { font-size: 20px; font-weight: 600; }
   .more-sum {
-    font-size: 13.5px; color: var(--text-secondary); line-height: 1.5;
+    font-size: 16px; font-weight: 400; color: var(--text-secondary); line-height: 1.5;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
+
+  /* The catalogue stays one click away at the point the reader has scrolled
+     furthest from the nav (D-21). Count word derived, never hardcoded. */
+  .all-projects { margin: 24px 0 0; }
+  .all-projects a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0;
+    font-size: 16px; font-weight: 600; color: var(--link); text-decoration: none;
+  }
+  .all-projects a:hover { text-decoration: underline; }
 
   @media (max-width: 860px) { .more { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px) { .more { grid-template-columns: 1fr; } .lead { font-size: 17px; } }
