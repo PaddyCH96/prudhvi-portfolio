@@ -74,6 +74,33 @@ const isCurrent = (href: string) =>
          and buttons; --link-ink is the text colour that sits on top of it. */
       --link: #256bc0;
       --link-ink: #ffffff;
+      /* -- Hero field (D-03). A dedicated near-neutral family so the hero is
+         decorated with tokens of its own: the CVD-validated data pair stays
+         chart-only (C-10) and --link is not spent on brand identity (D-16).
+         Declared in all three theme blocks, per C-10. -- */
+      --hero-tint-a: #fbfbf9;
+      --hero-tint-b: #efeee8;
+      /* The veil and the grain composite over the gradient stops to produce the
+         surface hero text actually sits on: #deddd7 light / #272726 dark, at the
+         worst animation frame (opacity 1.0). Published floor 5.83:1 light /
+         8.35:1 dark, --text-secondary on that composite. --muted (3.86:1) and
+         --link (3.91:1) are prohibited as text there at any opacity.
+         Changing either alpha requires recomputing and republishing the composite
+         table before the change lands (UI-SPEC Color hard rule 6);
+         tests/gates/tokens.test.mjs recomputes both floors from these values, so
+         an unpublished alpha change fails the gate rather than shipping. */
+      --hero-veil: rgba(11, 11, 11, 0.03);
+      --hero-grain: rgba(11, 11, 11, 0.045);
+      --hero-edge: rgba(11, 11, 11, 0.08);
+      --hero-shadow: 0 1px 2px rgba(11, 11, 11, .04), 0 10px 28px rgba(11, 11, 11, .06);
+      /* Theme-invariant (D-15): identical value in all three blocks. The favicon
+         tile must read the same on a light or a dark tab strip, and the ICO and
+         apple-touch fallbacks cannot honour a theme-responsive icon anyway.
+         Ink measures 16.31:1 on the tile. */
+      --hero-tile: #161615;
+      --hero-tile-ink: #f4f3ef;
+      /* Ambient drift cycle duration (D-02). */
+      --hero-drift: 34s;
       --radius: 10px;
       --maxw: 940px;
       --font: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -94,6 +121,33 @@ const isCurrent = (href: string) =>
         --good: #0ca30c;
         --link: #3987e5;
         --link-ink: #0d0d0d;   /* dark ink on the blue → 5.34:1 */
+        /* -- Hero field (D-03). A dedicated near-neutral family so the hero is
+           decorated with tokens of its own: the CVD-validated data pair stays
+           chart-only (C-10) and --link is not spent on brand identity (D-16).
+           Declared in all three theme blocks, per C-10. -- */
+        --hero-tint-a: #161615;
+        --hero-tint-b: #0f0f0e;
+        /* The veil and the grain composite over the gradient stops to produce the
+           surface hero text actually sits on: #deddd7 light / #272726 dark, at the
+           worst animation frame (opacity 1.0). Published floor 5.83:1 light /
+           8.35:1 dark, --text-secondary on that composite. --muted (3.86:1) and
+           --link (3.91:1) are prohibited as text there at any opacity.
+           Changing either alpha requires recomputing and republishing the composite
+           table before the change lands (UI-SPEC Color hard rule 6);
+           tests/gates/tokens.test.mjs recomputes both floors from these values, so
+           an unpublished alpha change fails the gate rather than shipping. */
+        --hero-veil: rgba(255, 255, 255, 0.04);
+        --hero-grain: rgba(255, 255, 255, 0.035);
+        --hero-edge: rgba(255, 255, 255, 0.09);
+        --hero-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 28px rgba(0, 0, 0, .45);
+        /* Theme-invariant (D-15): identical value in all three blocks. The favicon
+           tile must read the same on a light or a dark tab strip, and the ICO and
+           apple-touch fallbacks cannot honour a theme-responsive icon anyway.
+           Ink measures 16.31:1 on the tile. */
+        --hero-tile: #161615;
+        --hero-tile-ink: #f4f3ef;
+        /* Ambient drift cycle duration (D-02). */
+        --hero-drift: 34s;
       }
     }
     :root[data-theme="dark"] {
@@ -111,6 +165,33 @@ const isCurrent = (href: string) =>
       --good: #0ca30c;
       --link: #3987e5;
       --link-ink: #0d0d0d;   /* dark ink on the blue → 5.34:1 */
+      /* -- Hero field (D-03). A dedicated near-neutral family so the hero is
+         decorated with tokens of its own: the CVD-validated data pair stays
+         chart-only (C-10) and --link is not spent on brand identity (D-16).
+         Declared in all three theme blocks, per C-10. -- */
+      --hero-tint-a: #161615;
+      --hero-tint-b: #0f0f0e;
+      /* The veil and the grain composite over the gradient stops to produce the
+         surface hero text actually sits on: #deddd7 light / #272726 dark, at the
+         worst animation frame (opacity 1.0). Published floor 5.83:1 light /
+         8.35:1 dark, --text-secondary on that composite. --muted (3.86:1) and
+         --link (3.91:1) are prohibited as text there at any opacity.
+         Changing either alpha requires recomputing and republishing the composite
+         table before the change lands (UI-SPEC Color hard rule 6);
+         tests/gates/tokens.test.mjs recomputes both floors from these values, so
+         an unpublished alpha change fails the gate rather than shipping. */
+      --hero-veil: rgba(255, 255, 255, 0.04);
+      --hero-grain: rgba(255, 255, 255, 0.035);
+      --hero-edge: rgba(255, 255, 255, 0.09);
+      --hero-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 10px 28px rgba(0, 0, 0, .45);
+      /* Theme-invariant (D-15): identical value in all three blocks. The favicon
+         tile must read the same on a light or a dark tab strip, and the ICO and
+         apple-touch fallbacks cannot honour a theme-responsive icon anyway.
+         Ink measures 16.31:1 on the tile. */
+      --hero-tile: #161615;
+      --hero-tile-ink: #f4f3ef;
+      /* Ambient drift cycle duration (D-02). */
+      --hero-drift: 34s;
     }
 
     * { box-sizing: border-box; }
