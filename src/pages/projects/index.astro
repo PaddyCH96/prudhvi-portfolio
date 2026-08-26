@@ -3,11 +3,11 @@
 // Filtering is progressive enhancement: without JS every project is visible
 // and the filter bar is hidden, so the page never depends on the script.
 import Base from '../../layouts/Base.astro';
-import { projects, categories, profile } from '../../data/index.js';
+import { projects, categories, profile, projectCountWord } from '../../data/index.js';
 
 const title = `Work — ${profile.name}`;
 const description =
-  'Eight projects across analytics, full-stack engineering and applied AI — production forecasting, revenue-risk analysis, and AI products shipped end to end.';
+  `${projectCountWord} projects across analytics, full-stack engineering and applied AI — production forecasting, revenue-risk analysis, and AI products shipped end to end.`;
 
 const counts = Object.fromEntries(
   categories.map((c) => [c, projects.filter((p) => p.category === c).length]),
@@ -18,7 +18,7 @@ const counts = Object.fromEntries(
     <div class="wrap">
       <h1>Work</h1>
       <p class="lead">
-        Eight projects, shipped end to end. Each one has a case study — the
+        {projectCountWord} projects, shipped end to end. Each one has a case study — the
         problem, what I did, and what changed.
       </p>
 
