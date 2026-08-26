@@ -17,12 +17,52 @@
 // and logging would reproduce the precise failure mode D-10 exists to prevent.
 // ─────────────────────────────────────────────────────────────
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 import { verifyResvg } from './verify-resvg.mjs';
 import { verifyFonts } from './verify-fonts.mjs';
+import { fitSlot, overflowReason, renderCard, RENDERER_VERSION } from './card.mjs';
+import { ogRoutes } from '../src/data/og-routes.js';
 
 const BLOG_DIR = new URL('../src/content/blog/', import.meta.url);
+const OG_DIR = new URL('../public/og/', import.meta.url);
+const GENERATED_DIR = new URL('../src/generated/', import.meta.url);
+const MANIFEST = new URL('og-manifest.json', GENERATED_DIR);
+
+/** Slugs are composed into filesystem write paths (ASVS V12, T-03-15). */
+const SAFE_SLUG = /^[a-z0-9-]+$/;
+
+/**
+ * Skip-if-unchanged cache, keyed on the RENDER INPUTS.
+ *
+ * It cannot be keyed on the output hash — that is sha256 of the rendered PNG
+ * and is unknowable before rendering. Nor on "a file for this slug already
+ * exists": that would silently preserve a stale card after a `cardStat` edit,
+ * which is exactly what D-10 and D-12 exist to prevent. Keying on the inputs
+ * means a changed record re-renders, produces a new output hash, gets a new
+ * filename, and the stale sweep deletes the old file.
+ *
+ * Module-scoped so it survives dev-server config reloads (RESEARCH Pitfall 6).
+ * A cold start renders everything.
+ *
+ * @type {Map<string, {file: string, publicPath: string}>}
+ */
+const renderCache = new Map();
+
+/**
+ * The UI-SPEC § Copywriting "Error state — card render" text, verbatim.
+ * @param {string} route
+ * @param {string} reason
+ * @returns {never}
+ */
+function failCard(route, reason) {
+  throw new Error(
+    `og:image generation failed for ${route}: ${reason}. A silently broken share ` +
+      `card is invisible to you and visible to every recipient. Fix the renderer ` +
+      `or the source data — do not bypass with build:fast.`
+  );
+}
 
 /**
  * Read the blog collection as plain Node.
@@ -101,6 +141,82 @@ function parseFrontmatter(raw, name) {
 }
 
 /**
+ * Render one share card per route, content-hash each filename, sweep stale
+ * cards and write the manifest the layout reads.
+ *
+ * `includeDrafts` tracks the running mode. Drafts ARE live routes under
+ * `astro dev` (`src/pages/blog/[...slug].astro:6` renders them under
+ * `import.meta.env.DEV || !data.draft`), so a manifest built from a
+ * drafts-excluded list would leave `/blog/hello/` with no card — and plan
+ * 03-06's `Base.astro` lookup, which reproduces the same filter, would throw
+ * the moment anyone opened it. That turns D-10's build gate into a dev-server
+ * crash on a page that is deliberately visible. In `build` and `preview`
+ * drafts stay out, so `dist/` is unchanged.
+ *
+ * @param {{includeDrafts: boolean}} options
+ * @returns {Promise<Record<string, string>>}
+ */
+export async function generateCards({ includeDrafts }) {
+  const fonts = await verifyFonts();
+  const routes = ogRoutes(readBlogEntries({ includeDrafts }));
+
+  fs.mkdirSync(OG_DIR, { recursive: true });
+  fs.mkdirSync(GENERATED_DIR, { recursive: true });
+
+  /** @type {Record<string, string>} */
+  const manifest = {};
+  /** @type {Set<string>} */
+  const kept = new Set();
+
+  for (const route of Object.keys(routes).sort()) {
+    const record = routes[route];
+
+    // Defence in depth behind the identical assertion in og-routes.js: this
+    // string becomes a filesystem write path (T-03-15).
+    if (!SAFE_SLUG.test(record.slug)) {
+      failCard(route, `slug '${record.slug}' is not [a-z0-9-] and cannot name a file`);
+    }
+
+    const key = crypto
+      .createHash('sha256')
+      .update(JSON.stringify(record))
+      .update(RENDERER_VERSION)
+      .update(Buffer.concat(fonts.map((font) => font.data)))
+      .digest('hex');
+
+    const cached = renderCache.get(key);
+    if (cached && fs.existsSync(new URL(cached.file, OG_DIR))) {
+      manifest[route] = cached.publicPath;
+      kept.add(cached.file);
+      continue;
+    }
+
+    // Assert the type-setting rule before rendering, so the failure names the
+    // route rather than surfacing as a bare renderer error (D-23).
+    const fit = await fitSlot(record, fonts);
+    if (!fit.ok) failCard(route, overflowReason(record, fit.width));
+
+    const { png, hash } = await renderCard(record, fonts);
+    const file = `${record.slug}.${hash}.png`;
+    fs.writeFileSync(new URL(file, OG_DIR), png);
+
+    const publicPath = `/og/${file}`;
+    manifest[route] = publicPath;
+    kept.add(file);
+    renderCache.set(key, { file, publicPath });
+  }
+
+  // Stale sweep, scoped to public/og/*.png only. A corrected card lands under a
+  // new hashed name (D-12); this removes the name it replaced.
+  for (const name of fs.readdirSync(OG_DIR)) {
+    if (name.endsWith('.png') && !kept.has(name)) fs.rmSync(new URL(name, OG_DIR));
+  }
+
+  fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n');
+  return manifest;
+}
+
+/**
  * The integration. `command` is `'dev' | 'build' | 'preview'` and is kept in
  * scope because the generator needs it: drafts ARE live routes under
  * `astro dev`, so they must be carded there and only there.
@@ -119,10 +235,9 @@ export function assetPipeline() {
         if (ran) return;
         ran = true;
 
-        void command;
-
         await verifyResvg();
         await verifyFonts();
+        await generateCards({ includeDrafts: command === 'dev' });
       },
     },
   };
