@@ -1,20 +1,23 @@
 ---
-import { profile, stats, featuredProjects, experience, skills, education } from '../data/index.js';
+import { profile, stats, featuredProjects, experience, skills, education, projectCount } from '../data/index.js';
 ---
 
 <!-- ── Hero ───────────────────────────────────────────────── -->
-<section id="top" style="padding-top:72px;">
-  <div class="wrap">
-    <p style="color:var(--muted); font-size:14px; margin-bottom:6px;">{profile.location}</p>
-    <h1 style="font-size:clamp(32px,5vw,46px); margin-bottom:10px;">{profile.display}</h1>
-    <p style="font-size:19px; color:var(--text-primary); margin-bottom:16px;">{profile.headline}</p>
-    <p style="max-width:60ch; font-size:16.5px;">{profile.blurb}</p>
+<section id="top" class="hero">
+  <div class="wrap hero-inner">
+    <h1 class="hero-title">{profile.display}</h1>
+    <p class="hero-headline">{profile.headline}</p>
+    <p class="hero-blurb">{profile.blurb}</p>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;">
-      <a class="btn btn-primary" href={`/${profile.resume}`} download>Download résumé (PDF)</a>
-      <a class="btn" href={profile.github}>GitHub</a>
-      <a class="btn" href={profile.linkedin}>LinkedIn</a>
-      <a class="btn" href={`mailto:${profile.email}`}>Email</a>
+    <div class="hero-actions">
+      <a class="btn btn-primary hero-cta" href={`/${profile.resume}`} download>Download résumé (PDF)</a>
+      <p class="hero-secondary">
+        <a href={profile.github}>GitHub</a>
+        <span aria-hidden="true">·</span>
+        <a href={profile.linkedin}>LinkedIn</a>
+        <span aria-hidden="true">·</span>
+        <a href={`mailto:${profile.email}`}>Email</a>
+      </p>
     </div>
 
     <div class="stats">
@@ -47,7 +50,7 @@ import { profile, stats, featuredProjects, experience, skills, education } from 
         </article>
       ))}
     </div>
-    <p class="see-all"><a href="/projects/">See all 8 projects →</a></p>
+    <p class="see-all"><a href="/projects/">{`See all ${projectCount} projects →`}</a></p>
   </div>
 </section>
 
@@ -117,19 +120,199 @@ import { profile, stats, featuredProjects, experience, skills, education } from 
 </footer>
 
 <style>
-  /* These are standalone actions, not inline prose links, so they carry a
-     44px tap target. Negative margin keeps the visual spacing unchanged. */
-  .see-all { margin:22px 0 0; font-size:15px; font-weight:500; }
-  .see-all a { text-decoration:none; }
-  .see-all a:hover { text-decoration:underline; }
+  /* ── Hero field ────────────────────────────────────────────
+     The dimensional layer is two stacked, non-interactive pseudo-elements
+     inside #top, both behind the content (Color rule 4):
+
+       #top::before  gradient + veil, the ONLY animated layer (D-02)
+       #top::after   grain, token-tinted and never animated
+
+     They are split because the published composite floor
+     (5.83:1 light / 8.35:1 dark) is measured as
+     grain-alpha OVER veil OVER gradient-stop, and --hero-grain is a
+     colour token. A colour token cannot be substituted into a data-URI
+     (var() does not resolve inside url()), so the grain is painted as
+     background-color: var(--hero-grain) and shaped by a feTurbulence
+     mask. Folding it into ::before would mean hardcoding the grain alpha
+     and silently invalidating the composite table. Neither layer carries
+     text, so C-8 holds.
+     ───────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+  .hero::before,
+  .hero::after {
+    content: '';
+    position: absolute;
+    /* Bleeds past the box so the drift never exposes an edge; the
+       overflow:hidden above clips it, so no horizontal overflow at 375px. */
+    inset: -4%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero::before {
+    background:
+      radial-gradient(62% 84% at 22% 8%, var(--hero-veil), transparent 68%),
+      linear-gradient(148deg, var(--hero-tint-a), var(--hero-tint-b));
+  }
+  .hero::after {
+    background-color: var(--hero-grain);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    -webkit-mask-size: 180px 180px;
+    mask-size: 180px 180px;
+    -webkit-mask-repeat: repeat;
+    mask-repeat: repeat;
+  }
+  /* Content sits above both layers so text never blends through the grain. */
+  .hero-inner { position: relative; z-index: 1; }
+
+  /* Motion is opt-in: the static composition is the default and is what the
+     published contrast floor is measured at (opacity 1.0, the worst frame). */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero::before {
+      animation: hero-drift var(--hero-drift) ease-in-out infinite alternate;
+      will-change: transform, opacity;
+    }
+  }
+  @keyframes hero-drift {
+    from { transform: translate3d(-1.4%, -0.8%, 0); opacity: 0.82; }
+    to   { transform: translate3d(1.4%, 0.8%, 0);   opacity: 1; }
+  }
+
+  /* ── Hero type — Display / Heading-quiet / Body ─────────── */
+  .hero-title {
+    font-size: clamp(34px, 4.6vw, 48px);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+  }
+  .hero-headline {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+  }
+  .hero-blurb {
+    max-width: 62ch;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* ── Hero actions — one primary, three quiet links ──────── */
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    margin-top: 32px;
+  }
+  /* Height is declared, never computed from padding (C-9). */
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .hero-secondary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    margin: 0;
+  }
+  .hero-secondary a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    /* Affordance is the underline and the ink shift, not hue: --link
+       measures 3.91:1 on this field and is not on the reserved list. */
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .hero-secondary a:hover,
+  .hero-secondary a:focus-visible {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .hero-secondary span { color: var(--text-secondary); }
+
+  /* ── Stat grid — kept in full (D-04) ────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  /* Opaque on purpose: --muted clears AA on --surface-1 (5.11/4.85) but
+     fails over the hero composite (3.86/4.16). Do not make this translucent. */
+  .stat {
+    background: var(--surface-1);
+    border: 1px solid var(--hero-edge);
+    border-radius: var(--radius);
+    box-shadow: var(--hero-shadow);
+    padding: 16px;
+  }
+  .stat-v {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .stat-v small {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .stat-l {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* ── Catalogue link ─────────────────────────────────────── */
+  .see-all { margin: 24px 0 0; }
+  .see-all a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-decoration: none;
+  }
+  .see-all a:hover { text-decoration: underline; }
+
+  /* Not edited by this phase — kept at their current values on purpose. */
   .card-links { display:flex; gap:16px; margin:5px 0 -11px; font-size:14px; font-weight:500; }
   .card-links a { text-decoration:none; padding:11px 0; }
   .card-links a:hover { text-decoration:underline; }
-  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:34px; }
-  .stat { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
-  .stat-v { display:block; font-size:24px; font-weight:600; color:var(--text-primary); letter-spacing:-0.02em; }
-  .stat-v small { font-size:14px; font-weight:500; color:var(--muted); margin-left:2px; }
-  .stat-l { display:block; font-size:12.5px; color:var(--text-secondary); margin-top:2px; }
 
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 
