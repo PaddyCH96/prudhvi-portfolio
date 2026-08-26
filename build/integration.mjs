@@ -19,14 +19,18 @@
 
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 import { verifyResvg } from './verify-resvg.mjs';
 import { verifyFonts } from './verify-fonts.mjs';
 import { fitSlot, overflowReason, renderCard, RENDERER_VERSION } from './card.mjs';
+import { generateIcons, ICON_FILES } from './icons.mjs';
 import { ogRoutes } from '../src/data/og-routes.js';
 
 const BLOG_DIR = new URL('../src/content/blog/', import.meta.url);
 const OG_DIR = new URL('../public/og/', import.meta.url);
+const PUBLIC_DIR = new URL('../public/', import.meta.url);
+const MARK_SVG = new URL('../src/assets/icon/mark.svg', import.meta.url);
 const GENERATED_DIR = new URL('../src/generated/', import.meta.url);
 const MANIFEST = new URL('og-manifest.json', GENERATED_DIR);
 
@@ -238,6 +242,28 @@ export function assetPipeline() {
         await verifyResvg();
         await verifyFonts();
         await generateCards({ includeDrafts: command === 'dev' });
+
+        // The icons are produced by THIS hook, immediately after the cards and
+        // inside the same `ran` guard, on purpose (D-14). The share card and
+        // the favicon are one visual identity; generating them in two separate
+        // steps is how they quietly drift apart, because only one of the two
+        // would re-run after an edit.
+        const written = await generateIcons(fileURLToPath(MARK_SVG), fileURLToPath(PUBLIC_DIR));
+
+        // The returned list is the contract the layout's <link> tags rely on.
+        // Assert it here rather than trusting the generator, so a set that goes
+        // partial fails the build naming the file, not the browser showing a
+        // blank page icon.
+        for (const name of ICON_FILES) {
+          if (!written.includes(name) || !fs.existsSync(new URL(name, PUBLIC_DIR))) {
+            throw new Error(
+              `icon generation did not produce public/${name}. The browser-chrome ` +
+                `asset set must be complete — a missing icon is invisible to you and ` +
+                `visible in every visitor's tab. Fix the generator or the mark, do ` +
+                `not bypass with build:fast.`
+            );
+          }
+        }
       },
     },
   };
