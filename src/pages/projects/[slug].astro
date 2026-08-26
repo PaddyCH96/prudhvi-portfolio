@@ -150,17 +150,17 @@ const description = project.summary;
     color: var(--muted); font-weight: 600; margin: 28px 0 0;
   }
 
-  /* Related row. Three cards, never seven — gated by
-     tests/gates/casestudy.test.mjs, which is the only DSGN-04 gate that reads
-     this file (typography/spacing exempt it, by agreement with plan 03-07). */
+  /* Related row. Three cards, never seven. Gated by casestudy.test.mjs,
+   * the only DSGN-04 gate that reads this file — typography and spacing
+   * exempt it, by agreement with plan 03-07. */
   .more-label {
     font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--muted); font-weight: 600; margin: 0 0 16px;
   }
 
   .more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  /* Height is declared, not accumulated from padding (C-9). 88px is twice the
-     44px control floor and still on the 4px rhythm. */
+  /* Height is declared, not accumulated from padding (C-9). It is twice the
+   * control floor and still on the 4px rhythm. */
   .more-card {
     display: flex; flex-direction: column; justify-content: center; gap: 8px;
     min-height: 88px;
@@ -170,7 +170,7 @@ const description = project.summary;
   }
   .more-card:hover { border-color: var(--link); }
   /* --muted on the opaque --surface-1 card is 5.11:1 light / 4.85:1 dark.
-     Keep these cards opaque. */
+   * Keep these cards opaque. */
   .more-tag { font-size: 13px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
   .more-name { font-size: 20px; font-weight: 600; }
   .more-sum {
@@ -179,7 +179,7 @@ const description = project.summary;
   }
 
   /* The catalogue stays one click away at the point the reader has scrolled
-     furthest from the nav (D-21). Count word derived, never hardcoded. */
+   * furthest from the nav (D-21). Count word derived, never hardcoded. */
   .all-projects { margin: 24px 0 0; }
   .all-projects a {
     display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0;
