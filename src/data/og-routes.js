@@ -163,8 +163,13 @@ export const staticRoutes = [
 /**
  * One record per project. Headline slot resolution follows the D-08 order:
  * an authored cardStat wins, and a null cardStat — a decision, not an
- * oversight — resolves to the category · status chip. There is no third
- * branch, and nothing is re-derived from `outcome` (D-23 deleted that regex).
+ * oversight — resolves to the bare status. There is no third branch, and
+ * nothing is re-derived from `outcome` (D-23 deleted that regex).
+ *
+ * The fallback is the status ALONE, not `category · status`: the eyebrow
+ * already carries the category, so the pair rendered it twice on the same
+ * card. The shorter string also clears the 1056px inner box at full 104px,
+ * so these cards no longer step down.
  * @type {OgRoute[]}
  */
 export const projectRoutes = projects.map((project) =>
@@ -173,7 +178,7 @@ export const projectRoutes = projects.map((project) =>
     slug: project.slug,
     eyebrow: project.category,
     title: project.name,
-    slot: project.cardStat ? project.cardStat.value : `${project.category} · ${project.status}`,
+    slot: project.cardStat ? project.cardStat.value : project.status,
     unit: project.cardStat ? project.cardStat.unit : null,
   })
 );

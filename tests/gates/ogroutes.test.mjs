@@ -121,8 +121,14 @@ describe('headline slot follows the D-08 resolution order', () => {
       if (project.cardStat === null) {
         assert.equal(
           rec.slot,
-          `${project.category} · ${project.status}`,
-          'a null cardStat is a decision, and it renders the category · status chip.'
+          project.status,
+          'a null cardStat is a decision, and it renders the bare status. Not ' +
+            'the category too — the eyebrow already carries that, and the pair ' +
+            'printed it twice on one card.'
+        );
+        assert.ok(
+          !rec.slot.includes(project.category),
+          'the fallback slot must not repeat the category shown in the eyebrow.'
         );
         assert.equal(rec.unit, null);
       } else {
