@@ -9,7 +9,7 @@
     "build:fast": "astro build",
     "check": "astro check",
     "preview": "astro preview",
-    "test:gates": "node --test tests/gates/",
+    "test:gates": "node --test tests/gates/*.test.mjs",
     "verify:visual": "node tests/visual/sweep.mjs"
   },
   "dependencies": {
