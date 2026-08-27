@@ -338,4 +338,7 @@ Phases 0 (data layer), 1 (case studies), 2 (routes) and 3 (design pass —
 typography and spacing scales, the hero, share cards, icons, the responsive and
 accessibility sweep) are complete.
 
-- **Phase 4** — sitemap, RSS, Cloudflare Pages, domain, analytics
+- **Phase 4** — sitemap, RSS, Cloudflare Pages, domain
+
+Analytics is deliberately absent. No tool has been chosen and no privacy
+stance decided, so it is an open question rather than planned work.
