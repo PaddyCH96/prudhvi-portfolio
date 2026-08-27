@@ -39,10 +39,17 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
       {featuredProjects.map((p) => (
         <article class="card">
           <p style="font-size:12px; color:var(--muted); margin-bottom:6px; letter-spacing:.04em; text-transform:uppercase;">{p.tag}</p>
-          <h3 style="font-size:18px;"><a href={`/projects/${p.slug}/`} style="text-decoration:none;">{p.name}</a></h3>
+          {/* Headline number first — the same authored cardStat the share card uses.
+              Null is a decision (Alpha / In progress), not a missing value. */}
+          <p class="card-stat">
+            {p.cardStat
+              ? <><span class="card-stat-v">{p.cardStat.value}</span><small>{p.cardStat.unit}</small></>
+              : <span class="card-stat-s">{p.status}</span>}
+          </p>
+          <h3 style="font-size:18px;"><a href={`/projects/${p.slug}/`} style="text-decoration:none; color:inherit;">{p.name}</a></h3>
           <p style="font-size:14.5px;">{p.summary}</p>
           <ul>{p.points.map((pt) => <li style="font-size:14px;">{pt}</li>)}</ul>
-          <ul class="chips">{p.stack.map((t) => <li>{t}</li>)}</ul>
+          <p class="card-stack">{p.stack.join(' · ')}</p>
           <p class="card-links">
             <a href={`/projects/${p.slug}/`}>Read the case study →</a>
             {p.url && <a href={p.url} rel="noopener">Code ↗</a>}
@@ -286,6 +293,16 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
     color: var(--muted);
     margin-left: 4px;
   }
+  /* Card headline number — same idiom as .stat-v above, not a second scale. */
+  .card-stat { margin-bottom: 8px; }
+  .card-stat-v {
+    font-size: 20px; font-weight: 600; line-height: 1.25;
+    letter-spacing: -0.01em; color: var(--text-primary);
+  }
+  .card-stat small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+  .card-stat-s { font-size: 20px; font-weight: 600; color: var(--text-secondary); }
+  .card-stack { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
   .stat-l {
     display: block;
     font-size: 13px;

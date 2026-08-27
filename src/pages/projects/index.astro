@@ -43,11 +43,20 @@ const counts = Object.fromEntries(
         {projects.map((p) => (
           <article class="card item" data-category={p.category}>
             <p class="card-tag">{p.tag}</p>
+            {/* The headline number leads. It is the same authored cardStat the share
+                card renders, so a visitor who clicks through sees at least as much
+                evidence as someone who only saw the link preview. A null cardStat is
+                a decision, not a gap, and falls back to the honest status. */}
+            <p class="card-stat">
+              {p.cardStat
+                ? <><span class="card-stat-v">{p.cardStat.value}</span><small>{p.cardStat.unit}</small></>
+                : <span class="card-stat-s">{p.status}</span>}
+            </p>
             <h2 class="card-name">
               <a href={`/projects/${p.slug}/`}>{p.name}</a>
             </h2>
             <p class="card-sum">{p.summary}</p>
-            <ul class="chips">{p.stack.slice(0, 5).map((t) => <li>{t}</li>)}</ul>
+            <p class="card-stack">{p.stack.slice(0, 5).join(' · ')}</p>
             <p class="card-links">
               <a href={`/projects/${p.slug}/`}>Read the case study →</a>
               {p.url && <a href={p.url} rel="noopener">Code ↗</a>}
@@ -134,8 +143,23 @@ const counts = Object.fromEntries(
     text-transform: none; letter-spacing: -0.01em;
     font-weight: 600; color: var(--text-primary);
   }
-  .card-name a { text-decoration: none; }
+  /* Inherit, so the title reads as a heading rather than a third blue element.
+     Blue now means "this navigates" — the two links below carry it alone. */
+  .card-name a { text-decoration: none; color: inherit; }
+  .card-name a:hover { text-decoration: underline; }
   .card-sum { font-size: 14.5px; }
+  /* Reuses the hero's .stat-v idiom — 20px value, 13px muted unit — rather than
+     inventing a second number scale. */
+  .card-stat { margin-bottom: 8px; }
+  .card-stat-v {
+    font-size: 20px; font-weight: 600; line-height: 1.25;
+    letter-spacing: -0.01em; color: var(--text-primary);
+  }
+  .card-stat small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+  .card-stat-s { font-size: 20px; font-weight: 600; color: var(--text-secondary); }
+  /* The stack was five pills that outweighed the result. One quiet line keeps the
+     information and returns the weight to the number and the outcome. */
+  .card-stack { font-size: 13px; color: var(--muted); margin-top: 8px; }
   .card-links { display: flex; gap: 16px; margin: 6px 0 -11px; font-size: 14px; font-weight: 500; }
   .card-links a { text-decoration: none; padding: 11px 0; }
   .card-links a:hover { text-decoration: underline; }
