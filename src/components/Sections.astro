@@ -339,4 +339,14 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
     .grid2 { grid-template-columns:1fr; }
     .job, .skillrow { grid-template-columns:1fr; gap:8px; }
   }
+
+  @media (max-width:760px) and (max-height:700px) {
+    /* Short phones only — a 667px-tall iPhone SE needs ~21px more than the
+     * block above gives back to keep all four stat cards above the fold.
+     * Scoped to max-height so taller phones keep the roomier rhythm rather
+     * than every phone paying for the smallest one. Still 4-point values. */
+    .hero { padding-top: 16px; }
+    .hero-actions { margin-top: 16px; }
+    .stats { margin-top: 16px; }
+  }
 </style>

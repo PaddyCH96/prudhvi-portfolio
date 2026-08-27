@@ -15,8 +15,12 @@ export const profile = {
   display: 'Prudhvi \u201CPaddy\u201D Kadamuthuri',
   short: 'Paddy',
   headline: 'Data Analyst · BI & Analytics Engineering',
+  // Kept to four lines at 375px so the four stat cards clear the fold on a
+  // 667px-tall phone (D-04). The years and the sector list are the evidence
+  // and stay; the closing clause about shipping tooling went to make room —
+  // the projects demonstrate it better than a sentence claiming it does.
   blurb:
-    'I turn messy operational data into things people actually use — dashboards, forecasts, and pipelines that hold up in production. Five years across energy, telecom, healthcare and consumer tech, and a habit of shipping the tooling as well as the analysis.',
+    'I turn messy operational data into dashboards, forecasts and pipelines that hold up in production. Five years across energy, telecom, healthcare and consumer tech.',
   location: 'Hyderabad, India',
   email: 'paddyramakrishna@outlook.com',
   linkedin: 'https://www.linkedin.com/in/prudhvikadamuthuri/',

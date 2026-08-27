@@ -301,14 +301,21 @@ async function main() {
           // ── D-04 above the fold, and the hero pixel + token walk ──
           if (route === '/') {
             if (width === 375) {
-              const stats = await page.evaluate(() =>
-                [...document.querySelectorAll('.stat')].map((el) => {
-                  const r = el.getBoundingClientRect();
-                  return Math.round((r.y + window.scrollY + r.height) * 100) / 100;
-                })
-              );
-              const deepest = Math.max(...stats);
+              // The viewport is genuinely resized to each fold height before
+              // measuring. Measuring once at the sweep's 900px height and
+              // comparing that number against 667 answers the wrong question:
+              // it cannot see a `max-height` rule, so a layout that adapts to
+              // short phones reads as failing and a layout that does not reads
+              // the same. The fold has to be the real viewport.
               for (const fold of FOLDS) {
+                await page.setViewportSize({ width, height: fold });
+                const stats = await page.evaluate(() =>
+                  [...document.querySelectorAll('.stat')].map((el) => {
+                    const r = el.getBoundingClientRect();
+                    return Math.round((r.y + window.scrollY + r.height) * 100) / 100;
+                  })
+                );
+                const deepest = Math.max(...stats);
                 record(
                   route,
                   width,
@@ -321,6 +328,7 @@ async function main() {
                       : `(${Math.round(deepest - fold)}px short)`)
                 );
               }
+              await page.setViewportSize({ width, height: 900 });
             }
 
             // Sampled composite contrast: screenshot a 1×1 clip inside the
