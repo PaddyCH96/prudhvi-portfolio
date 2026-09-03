@@ -13,7 +13,18 @@
   // an assets-only deployment.
   "name": "prudhvi-portfolio",
   "compatibility_date": "2026-09-04",
+  // Without this, the workers.dev subdomain route is treated as disabled and
+  // returns 404 with body "error code: 1042" on every path — confirmed live:
+  // https://prudhvi-portfolio.paddyramakrishna.workers.dev/ 404'd on / and on
+  // a static asset both, with that exact error body, before this was added.
+  // The custom domain (prudhvik.dev, once registered) is unaffected either
+  // way — this only controls the free *.workers.dev preview URL.
+  "workers_dev": true,
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Astro's static output is folder-per-route + index.html (e.g.
+    // about/index.html for /about/) — without this, requests to a trailing-
+    // slash path may not resolve to that file correctly.
+    "html_handling": "auto-trailing-slash"
   }
 }
