@@ -10,7 +10,7 @@
 //   C-11  one <h1> per page
 //   C-13  exactly three distinct inline scripts, site-wide
 //   C-14  /projects/ is a complete catalogue with JS disabled
-//   D-09  no font asset and no @font-face reaches a visitor
+//   D-09  exactly one display face reaches a visitor, inside a size budget
 // ─────────────────────────────────────────────────────────────
 
 import { test, describe } from 'node:test';
@@ -169,35 +169,101 @@ describe('C-14 — /projects/ is a complete catalogue with JS disabled', () => {
   });
 });
 
-describe('D-09 — no font reaches a visitor', () => {
-  test('dist/ contains no font container', () => {
+// D-09 was originally "no font reaches a visitor". The redesign revises it to
+// "exactly ONE display face reaches a visitor, inside a size budget", because
+// the condensed proportion is the single largest carrier of the new visual
+// identity and no system stack supplies it reliably (Arial Narrow on macOS and
+// Windows, frequently nothing on Linux).
+//
+// The revision is deliberately narrow. The original decline was costed at
+// ~150KB for a full geometric sans family; this is 8.6KB of latin-only display
+// face with font-display: swap, so nothing blocks first paint and body text
+// still comes from the system stack. Manrope remains BUILD-ONLY — it is the
+// satori card renderer's typeface and must never become a download.
+//
+// The gate is narrowed rather than deleted: without a ceiling, "one font" is
+// how a family arrives one weight at a time.
+const DISPLAY_FACE = 'bebas-neue-v16-latin-regular.woff2';
+const FONT_BUDGET_BYTES = 12 * 1024;
+
+describe('D-09 — exactly one display face reaches a visitor', () => {
+  test('dist/ ships the display face and nothing else', () => {
     const fonts = allFiles.filter((f) => FONT_EXTENSIONS.some((e) => f.toLowerCase().endsWith(e)));
+    const unexpected = fonts.filter((f) => !f.endsWith(DISPLAY_FACE));
     assert.deepEqual(
-      fonts,
+      unexpected,
       [],
-      `dist/ ships ${fonts.length} font file(s): ${fonts.join(', ')}. The site keeps its system ` +
-        `stack and downloads nothing. The bundled Manrope is a BUILD-ONLY asset for the share-card ` +
-        `renderer and the monogram export; a stylesheet import would ship ~70KB silently.`
+      `dist/ ships font file(s) that are not the one permitted display face: ` +
+        `${unexpected.join(', ')}. D-09 allows ${DISPLAY_FACE} alone. Manrope is a BUILD-ONLY ` +
+        `asset for the share-card renderer and the monogram export; a stylesheet import would ` +
+        `ship ~70KB silently.`
+    );
+    assert.equal(
+      fonts.length,
+      1,
+      `dist/ ships ${fonts.length} font files, expected exactly 1. Shipping the face in a ` +
+        `second container (a .ttf next to the .woff2) doubles the download for no gain.`
     );
   });
 
-  test('no stylesheet or inline <style> declares an @font-face', () => {
-    const offenders = [];
-    for (const css of stylesheets) {
-      if (/@font-face/i.test(readFileSync(css, 'utf8'))) offenders.push(css);
-    }
+  test('the display face stays inside its size budget', () => {
+    const face = allFiles.find((f) => f.endsWith(DISPLAY_FACE));
+    assert.ok(face, `${DISPLAY_FACE} is not in dist/. D-09 now expects it to be served.`);
+    const bytes = statSync(face).size;
+    assert.ok(
+      bytes <= FONT_BUDGET_BYTES,
+      `${DISPLAY_FACE} is ${bytes} bytes, over the ${FONT_BUDGET_BYTES}-byte budget. D-09 was ` +
+        `revised on the arithmetic that one latin-only display face costs ~8.6KB against the ` +
+        `~150KB that got a full family declined. A subset that has grown past this budget means ` +
+        `that arithmetic no longer holds — re-make the decision rather than raising the number.`
+    );
+  });
+
+  test('exactly one @font-face is declared, and it is the display face', () => {
+    /** @type {string[]} */
+    const declarations = [];
+    const collect = (css, where) => {
+      for (const m of css.matchAll(/@font-face\s*\{([\s\S]*?)\}/gi)) {
+        declarations.push(`${where}: ${(/font-family\s*:\s*([^;]+);/i.exec(m[1]) ?? [, '?'])[1].trim()}`);
+      }
+    };
+    for (const css of stylesheets) collect(readFileSync(css, 'utf8'), css);
     for (const page of pages) {
       const html = readFileSync(page, 'utf8');
-      for (const m of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) {
-        if (/@font-face/i.test(m[1])) offenders.push(page);
+      for (const m of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) collect(m[1], page);
+    }
+
+    // Astro inlines the same stylesheet into every page, so one authored rule
+    // legitimately appears many times. What must hold is that they are all the
+    // SAME face — a second family is a second download.
+    const families = [...new Set(declarations.map((d) => d.split(': ')[1].replace(/["']/g, '')))];
+    assert.deepEqual(
+      families,
+      ['Bebas Neue'],
+      `@font-face declares ${families.length} distinct families: ${families.join(', ')}. D-09 ` +
+        `permits exactly one, "Bebas Neue". Each additional family is another visitor download; ` +
+        `body text must keep coming from the system stack.`
+    );
+  });
+
+  test('the @font-face does not block first paint', () => {
+    const withSwap = stylesheets
+      .map((css) => readFileSync(css, 'utf8'))
+      .concat(
+        pages.flatMap((p) =>
+          [...readFileSync(p, 'utf8').matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1])
+        )
+      )
+      .filter((css) => /@font-face/i.test(css));
+    for (const css of withSwap) {
+      for (const m of css.matchAll(/@font-face\s*\{([\s\S]*?)\}/gi)) {
+        assert.match(
+          m[1],
+          /font-display\s*:\s*swap/i,
+          `An @font-face omits font-display: swap. Without it the display face blocks text ` +
+            `rendering while it downloads, which is the cost D-09 was written to avoid.`
+        );
       }
     }
-    assert.deepEqual(
-      offenders,
-      [],
-      `@font-face appears in: ${offenders.join(', ')}. Declaring one is how a build-only font ` +
-        `becomes a download — D-09 promises the visitor's system stack, and this is the ` +
-        `assertion that keeps the promise true.`
-    );
   });
 });

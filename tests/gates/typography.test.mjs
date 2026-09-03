@@ -16,7 +16,11 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 
 import { EXEMPT, SOURCE, stylesheetOf, rulesOf, isGated } from '../helpers/css.mjs';
 
-const ALLOWED_SIZES = new Set(['clamp(34px, 4.6vw, 48px)', '20px', '16px', '13px']);
+// The Display value moved with the redesign (D-17): the hero name is now set
+// in the condensed display face at the template's own 0.89 leading. Still four
+// sizes and two weights — the redesign changes what Display IS, not how many
+// roles there are.
+const ALLOWED_SIZES = new Set(['clamp(34px, 10.5vw, 128px)', '20px', '16px', '13px']);
 const ALLOWED_WEIGHTS = new Set(['400', '600']);
 
 /**

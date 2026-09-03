@@ -28,6 +28,14 @@ export const GATED = [
 /** Not gated here, each with the reason it is out of scope. */
 export const EXEMPT = [
   [
+    '.hero-marquee',
+    'decorative band behind the hero (D-17), aria-hidden and carrying no reading text. Its clamp is a texture dimension — sized to the viewport so the words stay unreadable as words — not one of the four type roles. Gating it here would force a fifth entry into ALLOWED_SIZES and break the four-role premise the rest of this gate rests on.',
+  ],
+  [
+    '.marquee-row',
+    'the band itself; same reason as .hero-marquee. If this ever carries text a reader is meant to read, move it into GATED and give it a real role.',
+  ],
+  [
     'src/pages/projects/[slug].astro',
     'owned by plan 03-08 and its tests/gates/casestudy.test.mjs; 03-08 runs in this same wave and is the only plan that edits that file. Gating it here would make this file depend on a sibling plan landing first. Do not add it back.',
   ],
