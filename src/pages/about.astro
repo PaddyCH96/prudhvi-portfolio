@@ -7,9 +7,12 @@ const description =
   'Data analyst across energy, telecom, healthcare and consumer tech — five years, four companies, two countries — who kept building the tooling as well as the analysis.';
 ---
 <Base title={title} description={description}>
+  <section class="page-header">
+    <div class="wrap"><h1>{about.heading}</h1></div>
+  </section>
+
   <section id="top">
     <div class="wrap">
-      <h1>{about.heading}</h1>
       <p class="lead">{about.lead}</p>
 
       <dl class="facts">
@@ -65,7 +68,29 @@ const description =
 </Base>
 
 <style>
-  h1 { font-size: clamp(30px, 4.5vw, 42px); }
+  /* The template's masthead: a dark card bar holding one centred, oversized
+     uppercase title (D-17). This exact recipe repeats on Work and Writing —
+     it is a shared TREATMENT, not a shared component, because Astro scopes
+     <style> per file; keeping the values identical across the three files is
+     what makes them read as one system rather than three separate guesses. */
+  .page-header {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 2);
+    padding: 48px 24px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0;
+  }
   .lead { font-size: 19px; max-width: 60ch; color: var(--text-primary); }
   /* Prose measure — constrain the content, not the .wrap, so left edges align. */
   .body { font-size: 17px; line-height: 1.7; max-width: 680px; }

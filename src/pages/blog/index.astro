@@ -16,9 +16,12 @@ const fmt = (d: Date) =>
   d.toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 <Base title={title} description={description}>
+  <section class="page-header">
+    <div class="wrap"><h1>Writing</h1></div>
+  </section>
+
   <section id="top">
     <div class="wrap">
-      <h1>Writing</h1>
       <p class="lead">
         Notes on analytics, forecasting and building data products — mostly
         about the parts that went wrong.
@@ -61,7 +64,26 @@ const fmt = (d: Date) =>
 </Base>
 
 <style>
-  h1 { font-size: clamp(30px, 4.5vw, 42px); }
+  /* Same recipe as .page-header in about.astro and projects/index.astro — see
+     the comment there. Kept byte-identical on purpose. */
+  .page-header {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 2);
+    padding: 48px 24px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0;
+  }
   .lead { font-size: 18px; max-width: 58ch; color: var(--text-primary); }
   .body { font-size: 17px; line-height: 1.7; max-width: 680px; }
 
