@@ -23,6 +23,18 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
   </div>
 
   <div class="wrap hero-inner">
+    <picture>
+      <source srcset="/headshot.webp" type="image/webp" />
+      <img
+        class="hero-photo"
+        src="/headshot.jpg"
+        width="480"
+        height="480"
+        alt={profile.name}
+        loading="eager"
+        fetchpriority="high"
+      />
+    </picture>
     <h1 class="hero-title">{profile.display}</h1>
     <p class="hero-headline">{profile.headline}</p>
     <p class="hero-blurb">{profile.blurb}</p>
@@ -242,6 +254,28 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
   @keyframes hero-drift {
     from { transform: translate3d(-1.4%, -0.8%, 0); opacity: 0.82; }
     to   { transform: translate3d(1.4%, 0.8%, 0);   opacity: 1; }
+  }
+
+  /* The template keeps a photo to its About page, never Home — this is the
+     one deliberate departure from the source, on request. What's ported is
+     the template's PHOTO TREATMENT (a rounded card, not a circle crop), not
+     its placement.
+
+     The ring reads off --accent-ink, not --accent-panel: the panel lime is
+     1.09:1 against the light plane (see accent.test.mjs) and a border in that
+     colour would all but disappear there. --accent-ink is the token built for
+     exactly this — visible against both plane colours in both themes.
+
+     Sized small deliberately. The identity here is the giant Display name;
+     a large photo would compete with it rather than introduce it. */
+  .hero-photo {
+    display: block;
+    width: clamp(64px, 12vw, 128px);
+    height: clamp(64px, 12vw, 128px);
+    object-fit: cover;
+    border-radius: calc(var(--radius) * 2);
+    border: 3px solid var(--accent-ink);
+    margin: 0 0 20px;
   }
 
   /* ── Hero type — Display / Heading-quiet / Body ─────────── */
@@ -471,6 +505,7 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
        at 375px, so the hero compresses on the 4-point scale rather than
        dropping a card. Every value below is still a multiple of 4. */
     .hero { padding-top: 32px; padding-bottom: 48px; }
+    .hero-photo { width: 48px; height: 48px; margin-bottom: 12px; }
     .hero-title { margin-bottom: 8px; }
     .hero-headline { margin-bottom: 8px; }
     .hero-actions { margin-top: 24px; gap: 16px; }
@@ -487,6 +522,7 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
      * Scoped to max-height so taller phones keep the roomier rhythm rather
      * than every phone paying for the smallest one. Still 4-point values. */
     .hero { padding-top: 16px; }
+    .hero-photo { width: 40px; height: 40px; margin-bottom: 8px; }
     .hero-actions { margin-top: 16px; }
     .stats { margin-top: 16px; }
   }
