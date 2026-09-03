@@ -210,20 +210,33 @@ alone.
 
 ## Deploying
 
-Static output, so any host works. Target is **Cloudflare Pages** on
-`prudhvik.dev`.
+Static output, so any host works. Target is **Cloudflare** on `prudhvik.dev`,
+via the "Workers + Static Assets" git-connected deploy flow — Cloudflare
+folded the old standalone "Pages" product into this as of sometime in 2026;
+the dashboard now says "Configure your Worker project" even for a plain
+static site with no server logic.
 
 1. Push to GitHub.
-2. Cloudflare Pages → Create project → connect the repo.
-3. Build command `npm run build`, output directory `dist`.
-4. Set **build image version 3**. The asset pipeline needs a current Node and a
+2. Cloudflare dashboard → Workers & Pages → Create → connect the repo.
+3. Build command `npm run build`. There is no "output directory" field in
+   this flow — the "Path" field on that screen is which repo subdirectory to
+   build FROM (for monorepos), not where the output goes, and is unrelated.
+   Where the build output lives is instead read from `wrangler.jsonc` at the
+   repo root (`assets.directory: "./dist"`) — that file is committed, so a
+   fresh Cloudflare project needs no manual output-directory step at all.
+4. If the setup screen shows a red "This Worker does not exist on this
+   account" error under the project name field: this appears to be a
+   Cloudflare dashboard bug on a brand-new account's first Worker, not a real
+   problem. The Deploy button is not actually blocked by it.
+5. Set **build image version 3**. The asset pipeline needs a current Node and a
    glibc the `@resvg/resvg-js` linux binary can load; the older image fails
    `verify-resvg.mjs` at the gate.
-5. Set the environment variable **`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`**. The
+6. Set the environment variable **`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`**. The
    deploy build never opens a browser — `verify:visual` is not on the release
    path — but `playwright` is a devDependency, so without this flag every single
    Cloudflare build downloads roughly 150MB of browsers it will never use.
-6. Add `prudhvik.dev` as a custom domain; Cloudflare handles DNS and SSL.
+7. Add `prudhvik.dev` as a custom domain once the domain is actually
+   registered; Cloudflare handles DNS and SSL from there.
 
 `site` in `astro.config.mjs` is already set to `https://prudhvik.dev`. Serving
 from the apex domain means **no `base` path is needed**. If you ever serve from a

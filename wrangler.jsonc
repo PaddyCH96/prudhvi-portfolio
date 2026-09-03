@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare's git-connected "Workers + Static Assets" deploy model reads
+  // this to find the built site — the dashboard's own setup screen for this
+  // flow has no "build output directory" field, only a "Path" field (which
+  // repo subdirectory to build FROM, for monorepos; unrelated, left as the
+  // repo root). Without this file the platform has no way to know the build
+  // output lives at dist/.
+  //
+  // No "main" entry point: this is a pure static site (astro.config.mjs sets
+  // output: "static", no server-rendered routes), so there is no Worker
+  // script to run — assets.directory alone is a complete, valid config for
+  // an assets-only deployment.
+  "name": "prudhvi-portfolio",
+  "compatibility_date": "2026-09-04",
+  "assets": {
+    "directory": "./dist"
+  }
+}
