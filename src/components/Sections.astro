@@ -125,20 +125,62 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
 <!-- ── Contact ────────────────────────────────────────────── -->
 <section id="contact">
   <div class="wrap">
-    <h2>Get in touch</h2>
-    <p style="max-width:56ch; font-size:16.5px;">
-      I'm open to Data Analyst, BI Analyst and Analytics Engineer roles — India, UAE, or remote.
-      Based in {profile.location}. The fastest way to reach me is email.
-    </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-      <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
-      <a class="btn" href={profile.linkedin}>LinkedIn</a>
-      <a class="btn" href={profile.github}>GitHub</a>
+    <div class="panel-accent">
+      <h2>Get in touch</h2>
+      <p class="panel-body">
+        I'm open to Data Analyst, BI Analyst and Analytics Engineer roles — India, UAE, or remote.
+        Based in {profile.location}. The fastest way to reach me is email.
+      </p>
+      <div class="panel-actions">
+        <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn" href={profile.linkedin}>LinkedIn</a>
+        <a class="btn" href={profile.github}>GitHub</a>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
+  /* ── Lime panel (D-17) ─────────────────────────────────────
+     The template's full-bleed accent block — used there for "About" and "Get
+     in Touch". This site's bio content lives on its own /about/ page rather
+     than in a Home section, so there is no structural equivalent for the
+     first one; Contact is the direct match for the second, right down to the
+     heading and the three-link action row.
+
+     --accent-panel-ink is asserted, not var(--text-primary): the panel is
+     theme-invariant (tests/gates/accent.test.mjs), so its ink must be too — on
+     the light theme --text-primary is near-black already, but on dark it is
+     white, which would sit at ~1.1:1 on the lime. Every colour in here reads
+     off the accent tokens for the same reason. */
+  #contact { border-top: none; }
+  .panel-accent {
+    background: var(--accent-panel);
+    border-radius: calc(var(--radius) * 2);
+    padding: 40px clamp(24px, 6vw, 56px);
+  }
+  .panel-accent h2 { color: var(--accent-panel-ink); }
+  .panel-body {
+    max-width: 56ch;
+    font-size: 16.5px;
+    color: var(--accent-panel-ink);
+  }
+  .panel-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  /* Secondary links become an outlined dark chip on the lime; a lime-on-lime
+     fill (the site-wide .btn-primary) would be invisible here, so both button
+     kinds are re-pointed at the ink instead of the panel colour. */
+  .panel-actions .btn {
+    background: transparent;
+    border-color: var(--accent-panel-ink);
+    color: var(--accent-panel-ink);
+  }
+  .panel-actions .btn:hover { opacity: 0.7; }
+  .panel-actions .btn-primary {
+    background: var(--accent-panel-ink);
+    border-color: var(--accent-panel-ink);
+    color: var(--accent-panel);
+  }
+
   /* ── Hero field ────────────────────────────────────────────
      The dimensional layer is two stacked, non-interactive pseudo-elements
      inside #top, both behind the content (Color rule 4):
