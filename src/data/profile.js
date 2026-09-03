@@ -10,10 +10,8 @@ import { projectCount } from './projects.js';
 
 export const profile = {
   name: 'Prudhvi Kadamuthuri',
-  // Shown in the hero so global recruiters have a pronounceable handle
-  // while the formal name stays primary on all written materials.
-  display: 'Prudhvi \u201CPaddy\u201D Kadamuthuri',
-  short: 'Paddy',
+  display: 'Prudhvi Kadamuthuri',
+  short: 'Prudhvi',
   headline: 'Data Analyst · BI & Analytics Engineering',
   // Kept to four lines at 375px so the four stat cards clear the fold on a
   // 667px-tall phone (D-04). The years and the sector list are the evidence
@@ -22,7 +20,7 @@ export const profile = {
   blurb:
     'I turn messy operational data into dashboards, forecasts and pipelines that hold up in production. Five years across energy, telecom, healthcare and consumer tech.',
   location: 'Hyderabad, India',
-  email: 'paddyramakrishna@outlook.com',
+  email: 'prudhvi.kadamuthuri.dev@gmail.com',
   linkedin: 'https://www.linkedin.com/in/prudhvikadamuthuri/',
   github: 'https://github.com/PaddyCH96',
   resume: 'Prudhvi_Kadamuthuri_Resume.pdf',
