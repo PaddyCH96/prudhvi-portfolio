@@ -10,52 +10,49 @@ draft: true
 > publishing. Set `draft: false` in the frontmatter to publish. Drafts never
 > appear in the production build.
 
-"AI in fintech" mostly gets written about as a chatbot that answers your
-banking questions, or a model that approves your loan faster. That's the
-demo-able part. It's not the part I actually built.
+Most "AI in fintech" content is about the flashy stuff. A chatbot that
+answers your banking questions. A model that approves your loan in seconds.
+That's not what I ended up building.
 
-I'm working on [ComplianceOS](/projects/compliance-os/) — GST filing
-automation for Indian SMEs. It's MVP stage, still in active development, and
-I want to be upfront about that before I say anything else: nothing here is
-a claim that this is finished or proven at scale. What it's already taught me
-is more useful than a shipped product would be.
+I'm working on [ComplianceOS](/projects/compliance-os/), a GST filing tool
+for Indian SMEs. It's still MVP stage, still actively changing, so I'm not
+claiming it's finished or proven at scale. But building even this much of it
+taught me something I didn't expect: where an LLM actually belongs in a
+regulated workflow, and where it really doesn't.
 
-## Where the LLM actually goes
+## Where the LLM goes
 
-An invoice is unstructured: scanned, inconsistently formatted, sometimes
-handwritten line items, GSTINs in slightly different places depending on who
-issued it. That's exactly the kind of mess an LLM paired with OCR is good
-at — turning "a photo of a piece of paper" into structured fields you can
-actually query.
+Invoices are messy. Scanned photos, inconsistent formats, GSTINs sitting in
+a different spot depending on who printed the thing. That's a genuinely good
+job for an LLM plus OCR — take a photo of paper and turn it into fields you
+can query.
 
-What it isn't good at, and what I didn't let it do, is decide whether a
-filing is risky. The compliance risk score — 0 to 100, flagging anomalies
-ahead of a GSTR-1 or GSTR-3B deadline — runs on a deterministic rules
-engine, not the model.
+What it doesn't do is decide whether a filing is risky. That part — a 0 to
+100 score, flagging anomalies before a GSTR-1 or GSTR-3B deadline — runs on
+a plain rules engine. No model involved.
 
-## Why I drew the line there
+## Why I split it that way
 
-Two reasons, and only one of them is about accuracy.
+Two reasons. One's about accuracy, the other isn't.
 
-The first is the obvious one: a hallucinated field in an extracted invoice is
-a bug. A hallucinated *risk score* is a compliance liability that reaches a
-tax authority. Those aren't the same category of mistake, and I didn't want
-one architecture treating them as if they were.
+A hallucinated field in an extracted invoice is annoying, you fix it and
+move on. A hallucinated risk score is a compliance problem that can reach a
+tax authority. Those aren't the same kind of mistake, and I didn't want one
+system treating them as if they were.
 
-The second is about being able to explain the answer. If a filing gets
-flagged, the rules engine can say exactly which rule fired and why — same
-input, same output, every time, and a person can audit the logic line by
-line. An LLM's risk judgment is none of those things by default, and
-"trust me, the model said so" is not an answer a compliance officer, or a
-regulator, is going to accept.
+The other reason is being able to explain yourself. If something gets
+flagged, the rules engine can say which rule fired and why, same input, same
+output, every time. You can read the logic. An LLM's judgment isn't like
+that by default, and "the model said so" isn't going to fly with a
+compliance officer, let alone a regulator.
 
-So the split isn't "AI vs. no AI." It's: AI turns mess into structure,
-deterministic logic turns structure into a decision. The model never gets a
-vote on the thing that actually has consequences.
+So it's not really "AI vs. no AI" here. The model turns mess into
+structure. Rules turn structure into a decision. The model never gets a say
+in the part that actually has consequences.
 
-## The principle I'd defend
+## What I'd actually argue
 
-"AI in fintech" that survives contact with regulation puts the model in the
-parsing layer and keeps the decision layer boring, deterministic and
-auditable. That's a less exciting sentence than "AI approves your loan," but
-it's the version that doesn't fall apart the first time someone asks *why*.
+The "AI in fintech" that survives contact with regulation keeps the model in
+the parsing layer and keeps the decision layer boring and auditable. Less
+exciting than "AI approves your loan," sure. But it's the version that
+doesn't fall apart the first time someone asks why.
