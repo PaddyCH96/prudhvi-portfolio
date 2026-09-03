@@ -183,6 +183,36 @@ export const projects = [
     ],
     stack: ['Next.js', 'FastAPI', 'SQLAlchemy', 'SQLite', 'PyTesseract', 'OpenAI'],
   },
+  {
+    // Facts verified against github.com/PaddyCH96/focusflow's README and
+    // repo tree on 2026-09-03. cardStat is null: the README carries no
+    // user-facing number defensible as a headline (no usage metric, no
+    // benchmark) — a personal tool has a real story without one.
+    slug: 'focusflow',
+    name: 'FocusFlow Studio',
+    tag: 'Full Stack · Self-Hosted',
+    category: 'Full-stack',
+    featured: false,
+    status: 'Shipped',
+    url: 'https://github.com/PaddyCH96/focusflow',
+    summary:
+      'A self-hosted Pomodoro/Flowmodoro workstation — breathing exercises, kanban, journaling, voice notes and a whiteboard, running entirely on your own machine with zero telemetry.',
+    problem:
+      "Most focus-timer apps are cloud SaaS with an account, tracking and a subscription for what is fundamentally a stopwatch and a task list. Wanted the opposite: Pomodoro and Flowmodoro timers, breathing exercises, kanban, journaling and a whiteboard, all local, closeable without sending a byte anywhere.",
+    approach:
+      "Built full-stack on Next.js and FastAPI over PostgreSQL, containerised with Docker Compose so the whole stack runs on one machine with no account and no cloud dependency. Hardened it on the way to shipping: a /history endpoint that silently returned nothing — a missing return statement — is fixed, and the project went from zero tests to a Vitest + pytest suite covering the timer, hooks and core API routes.",
+    outcome:
+      'Ships as a working local-first productivity suite — five themes, Pomodoro/Flowmodoro timers with a Pranayama breathing guide, kanban tasks, session analytics, journaling, an audio player, voice notes and a whiteboard, self-hosted via Docker Compose with no telemetry.',
+    cardStat: null,
+    points: [
+      'Next.js 16 + FastAPI + PostgreSQL, fully containerised via Docker Compose',
+      'Fixed a silent bug where /history returned nothing — a missing return statement',
+      'Took the project from zero tests to a Vitest + pytest suite across the timer, hooks and core API routes',
+      'Pomodoro and Flowmodoro timers, kanban tasks, journaling, voice notes and a whiteboard in one app',
+      'Self-hosted, no accounts, zero telemetry',
+    ],
+    stack: ['Next.js', 'React', 'FastAPI', 'PostgreSQL', 'Docker', 'Vitest', 'pytest'],
+  },
 ];
 
 export const featuredProjects = projects.filter((p) => p.featured);
