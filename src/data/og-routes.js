@@ -134,7 +134,7 @@ export const staticRoutes = [
     path: '/',
     slug: 'home',
     eyebrow: 'Data Analyst · BI & Analytics Engineering',
-    title: 'Prudhvi “Paddy” Kadamuthuri',
+    title: 'Prudhvi Kadamuthuri',
     slot: `5 yrs · ${projectCount} projects`,
   }),
   record({

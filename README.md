@@ -1,6 +1,6 @@
 # prudhvik.dev
 
-Personal portfolio site for Prudhvi "Paddy" Kadamuthuri — Data Analyst, BI &
+Personal portfolio site for Prudhvi Kadamuthuri — Data Analyst, BI &
 Analytics Engineering.
 
 Built with Astro, static output, **zero JavaScript framework shipped to the

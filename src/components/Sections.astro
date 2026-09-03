@@ -1,9 +1,27 @@
 ---
 import { profile, stats, featuredProjects, experience, skills, education, projectCount } from '../data/index.js';
+
+// The two marquee bands are DERIVED from the headline rather than authored, so
+// the decoration cannot drift from the claim it decorates. profile.headline is
+// "Data Analyst · BI & Analytics Engineering"; splitting on the separator gives
+// exactly the two phrases the band repeats.
+const marqueeBands = profile.headline.split('·').map((s) => s.trim());
 ---
 
 <!-- ── Hero ───────────────────────────────────────────────── -->
 <section id="top" class="hero">
+  {/* Decorative only. aria-hidden is load-bearing, not tidiness: without it a
+      screen reader announces the repeated phrase once per copy before reaching
+      the name. The band carries no information the heading does not. */}
+  <div class="hero-marquee" aria-hidden="true">
+    {marqueeBands.map((band, i) => (
+      <div class={`marquee-row${i === 1 ? ' marquee-row-alt' : ''}`}>
+        <span>{`${band} `.repeat(8)}</span>
+        <span>{`${band} `.repeat(8)}</span>
+      </div>
+    ))}
+  </div>
+
   <div class="wrap hero-inner">
     <h1 class="hero-title">{profile.display}</h1>
     <p class="hero-headline">{profile.headline}</p>
@@ -38,7 +56,7 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
     <div class="grid2">
       {featuredProjects.map((p) => (
         <article class="card">
-          <p style="font-size:12px; color:var(--muted); margin-bottom:6px; letter-spacing:.04em; text-transform:uppercase;">{p.tag}</p>
+          <p class="card-tag">{p.tag}</p>
           {/* Headline number first — the same authored cardStat the share card uses.
               Null is a decision (Alpha / In progress), not a missing value. */}
           <p class="card-stat">
@@ -107,26 +125,62 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
 <!-- ── Contact ────────────────────────────────────────────── -->
 <section id="contact">
   <div class="wrap">
-    <h2>Get in touch</h2>
-    <p style="max-width:56ch; font-size:16.5px;">
-      I'm open to Data Analyst, BI Analyst and Analytics Engineer roles — India, UAE, or remote.
-      Based in {profile.location}. The fastest way to reach me is email.
-    </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-      <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
-      <a class="btn" href={profile.linkedin}>LinkedIn</a>
-      <a class="btn" href={profile.github}>GitHub</a>
+    <div class="panel-accent">
+      <h2>Get in touch</h2>
+      <p class="panel-body">
+        I'm open to Data Analyst, BI Analyst and Analytics Engineer roles — India, UAE, or remote.
+        Based in {profile.location}. The fastest way to reach me is email.
+      </p>
+      <div class="panel-actions">
+        <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn" href={profile.linkedin}>LinkedIn</a>
+        <a class="btn" href={profile.github}>GitHub</a>
+      </div>
     </div>
   </div>
 </section>
 
-<footer>
-  <div class="wrap">
-    Built with Astro · {profile.name} · {profile.location}
-  </div>
-</footer>
-
 <style>
+  /* ── Lime panel (D-17) ─────────────────────────────────────
+     The template's full-bleed accent block — used there for "About" and "Get
+     in Touch". This site's bio content lives on its own /about/ page rather
+     than in a Home section, so there is no structural equivalent for the
+     first one; Contact is the direct match for the second, right down to the
+     heading and the three-link action row.
+
+     --accent-panel-ink is asserted, not var(--text-primary): the panel is
+     theme-invariant (tests/gates/accent.test.mjs), so its ink must be too — on
+     the light theme --text-primary is near-black already, but on dark it is
+     white, which would sit at ~1.1:1 on the lime. Every colour in here reads
+     off the accent tokens for the same reason. */
+  #contact { border-top: none; }
+  .panel-accent {
+    background: var(--accent-panel);
+    border-radius: calc(var(--radius) * 2);
+    padding: 40px clamp(24px, 6vw, 56px);
+  }
+  .panel-accent h2 { color: var(--accent-panel-ink); }
+  .panel-body {
+    max-width: 56ch;
+    font-size: 16.5px;
+    color: var(--accent-panel-ink);
+  }
+  .panel-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  /* Secondary links become an outlined dark chip on the lime; a lime-on-lime
+     fill (the site-wide .btn-primary) would be invisible here, so both button
+     kinds are re-pointed at the ink instead of the panel colour. */
+  .panel-actions .btn {
+    background: transparent;
+    border-color: var(--accent-panel-ink);
+    color: var(--accent-panel-ink);
+  }
+  .panel-actions .btn:hover { opacity: 0.7; }
+  .panel-actions .btn-primary {
+    background: var(--accent-panel-ink);
+    border-color: var(--accent-panel-ink);
+    color: var(--accent-panel);
+  }
+
   /* ── Hero field ────────────────────────────────────────────
      The dimensional layer is two stacked, non-interactive pseudo-elements
      inside #top, both behind the content (Color rule 4):
@@ -191,12 +245,23 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
   }
 
   /* ── Hero type — Display / Heading-quiet / Body ─────────── */
+  /* The Display role. The template sets the name at 339px on one line — that
+     works for a five-letter first name and not for a three-part one, so the
+     equivalent impact here is a condensed uppercase setting that wraps to two
+     or three lines at a tight 0.89 leading (the template's own figure).
+     ALLOWED_SIZES in tests/gates/typography.test.mjs carries this exact string;
+     the two move together or the gate fails. */
   .hero-title {
-    font-size: clamp(34px, 4.6vw, 48px);
-    font-weight: 600;
-    line-height: 1.06;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: clamp(34px, 10.5vw, 128px);
+    /* Bebas Neue ships a single 400 weight. Asking for 600 makes the browser
+       synthesise a bold by smearing the outlines, which on a condensed display
+       face reads as a rendering fault. */
+    font-weight: 400;
+    line-height: 0.89;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
     margin: 0 0 16px;
   }
   .hero-headline {
@@ -206,6 +271,55 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
     letter-spacing: -0.01em;
     color: var(--text-primary);
     margin: 0 0 16px;
+  }
+
+  /* ── Ghost marquee ──────────────────────────────────────────
+     The template's "Infinite Carousel": two bands of oversized condensed caps
+     sitting just above the page ground, read as texture rather than as words.
+     It measures ~1.1:1 there and is invisible by design — which is why the
+     markup is aria-hidden and why this colour is mixed FROM --text-primary
+     rather than hard-coded: it has to stay a whisper against the plane in both
+     themes, not a fixed near-black that turns legible when the theme flips. */
+  .hero-marquee {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2vw;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    /* Fades the bands out at both edges, replacing the template's two 376px
+       gradient rectangles with something that survives any viewport width. */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  }
+  .marquee-row {
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: clamp(64px, 15vw, 190px);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--text-primary) 7%, var(--plane));
+  }
+  .marquee-row-alt { justify-content: flex-end; }
+
+  /* Motion is opt-in, matching the hero field above: the static composition is
+     the default. Each band holds two identical copies, so a -50% translation
+     lands exactly on the seam and repeats without a jump. */
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-row span { animation: marquee-drift 42s linear infinite; }
+    .marquee-row-alt span { animation-direction: reverse; }
+  }
+  @keyframes marquee-drift {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-100%, 0, 0); }
   }
   .hero-blurb {
     max-width: 62ch;
@@ -294,6 +408,16 @@ import { profile, stats, featuredProjects, experience, skills, education, projec
     margin-left: 4px;
   }
   /* Card headline number — same idiom as .stat-v above, not a second scale. */
+  /* The template's card role label ("Frontend", "Full Stack") is set in the
+     accent. Moved out of an inline style so it takes a token rather than a
+     literal, and lifted from 12px to 13px — the smallest role in the scale. */
+  .card-tag {
+    font-size: 13px;
+    color: var(--accent-ink);
+    margin-bottom: 6px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
   .card-stat { margin-bottom: 8px; }
   .card-stat-v {
     font-size: 20px; font-weight: 600; line-height: 1.25;
