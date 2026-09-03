@@ -19,9 +19,13 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync, readdirSync, globSync } from 'node:fs';
 
 import { OG_ALT_MAX } from '../../src/data/og-routes.js';
+// Derived, not literal (the domain changed once already: prudhvik.dev →
+// prudhvi.dev) — this asserts the built site against whatever site.url
+// actually is, rather than a second hardcoded guess at it.
+import { site } from '../../src/data/profile.js';
 
 const DIST = new URL('../../dist/', import.meta.url);
-const SITE = 'https://prudhvik.dev';
+const SITE = site.url;
 
 /** Every built page. The single source of every expectation in this file. */
 const PAGES = globSync('**/*.html', { cwd: DIST }).sort();

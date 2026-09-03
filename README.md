@@ -1,4 +1,4 @@
-# prudhvik.dev
+# prudhvi.dev
 
 Personal portfolio site for Prudhvi Kadamuthuri — Data Analyst, BI &
 Analytics Engineering.
@@ -210,7 +210,7 @@ alone.
 
 ## Deploying
 
-Static output, so any host works. Target is **Cloudflare** on `prudhvik.dev`,
+Static output, so any host works. Target is **Cloudflare** on `prudhvi.dev`,
 via the "Workers + Static Assets" git-connected deploy flow — Cloudflare
 folded the old standalone "Pages" product into this as of sometime in 2026;
 the dashboard now says "Configure your Worker project" even for a plain
@@ -235,10 +235,10 @@ static site with no server logic.
    deploy build never opens a browser — `verify:visual` is not on the release
    path — but `playwright` is a devDependency, so without this flag every single
    Cloudflare build downloads roughly 150MB of browsers it will never use.
-7. Add `prudhvik.dev` as a custom domain once the domain is actually
+7. Add `prudhvi.dev` as a custom domain once the domain is actually
    registered; Cloudflare handles DNS and SSL from there.
 
-`site` in `astro.config.mjs` is already set to `https://prudhvik.dev`. Serving
+`site` in `astro.config.mjs` is already set to `https://prudhvi.dev`. Serving
 from the apex domain means **no `base` path is needed**. If you ever serve from a
 subpath instead, add `base: '/<repo>'` there.
 
@@ -293,7 +293,7 @@ description. Case studies declare `og:type=article`; the homepage is `website`.
 Every route also ships an `og:image`: a generated 1200×630 card (see *What the
 build generates*) with a non-empty `og:image:alt` sourced from
 `src/data/og-routes.js`. `og:image` is emitted as an absolute URL against
-`https://prudhvik.dev`, which is what the crawlers require — so previews will
+`https://prudhvi.dev`, which is what the crawlers require — so previews will
 only resolve once the domain is live.
 
 ## Case studies

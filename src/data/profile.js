@@ -35,8 +35,8 @@ export const profile = {
 export const phoneHref = `tel:${profile.phone.replace(/\s+/g, '')}`;
 
 export const site = {
-  domain: 'prudhvik.dev',
-  url: 'https://prudhvik.dev',
+  domain: 'prudhvi.dev',
+  url: 'https://prudhvi.dev',
   description:
     'Data Analyst with 5 years across energy, telecom, healthcare and consumer tech. SQL, Power BI, Python, Azure — plus production ML systems and full-stack AI products.',
 };

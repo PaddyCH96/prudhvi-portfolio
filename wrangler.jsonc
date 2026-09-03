@@ -31,7 +31,7 @@
   // returns 404 with body "error code: 1042" on every path — confirmed live:
   // https://prudhvi-portfolio.paddyramakrishna.workers.dev/ 404'd on / and on
   // a static asset both, with that exact error body, before this was added.
-  // The custom domain (prudhvik.dev, once registered) is unaffected either
+  // The custom domain (prudhvi.dev, once registered) is unaffected either
   // way — this only controls the free *.workers.dev preview URL.
   "workers_dev": true,
   "assets": {

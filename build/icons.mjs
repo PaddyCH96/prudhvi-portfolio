@@ -31,6 +31,12 @@ import path from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
 import pngToIco from 'png-to-ico';
 
+// Derived, not literal: this generator carried its own hardcoded copy of the
+// name — including the retired "Paddy" nickname — until this edit. src/data/
+// profile.js is the single source for both, same as astro.config.mjs and
+// build/card.mjs.
+import { profile } from '../src/data/profile.js';
+
 /**
  * The complete generated set, in write order. The integration asserts the
  * returned list against this, and plan 03-06 emits the <link> tags that
@@ -53,8 +59,8 @@ export const ICON_FILES = [
  * launch for no benefit.
  */
 export const WEB_MANIFEST = {
-  name: 'Prudhvi Kadamuthuri',
-  short_name: 'Paddy',
+  name: profile.name,
+  short_name: profile.short,
   theme_color: '#0d0d0d',
   background_color: '#0d0d0d',
   display: 'browser',

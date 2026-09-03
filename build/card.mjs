@@ -31,6 +31,10 @@ import crypto from 'node:crypto';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 
+// Derived, not literal: the domain printed on the card changed once already
+// (prudhvik.dev → prudhvi.dev). See the identical note in astro.config.mjs.
+import { profile, site } from '../src/data/profile.js';
+
 /**
  * Bumped whenever `cardTree` changes. It is part of the skip-if-unchanged input
  * hash, so a composition edit re-renders every card instead of silently keeping
@@ -196,12 +200,12 @@ export function cardTree(record, slotSize = SLOT_SIZES[0]) {
           h(
             'div',
             { display: 'flex', fontSize: 26, fontWeight: 400, color: '#c3c2b7' },
-            'Prudhvi Kadamuthuri'
+            profile.name
           ),
           h(
             'div',
             { display: 'flex', fontSize: 26, fontWeight: 400, color: '#898781' },
-            'prudhvik.dev'
+            site.domain
           ),
         ]),
       ]),

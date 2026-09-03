@@ -110,7 +110,7 @@ audience gets a pronounceable handle. Typographic curly quotes, not straight.
 
 ### 6. Domain
 
-`astro.config.mjs` `site` set to `https://prudhvik.dev`. Apex domain means no
+`astro.config.mjs` `site` set to `https://prudhvi.dev`. Apex domain means no
 `base` path, which removes the most common Astro deployment failure.
 
 ---
