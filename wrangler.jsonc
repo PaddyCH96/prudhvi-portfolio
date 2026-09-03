@@ -13,6 +13,20 @@
   // an assets-only deployment.
   "name": "prudhvi-portfolio",
   "compatibility_date": "2026-09-04",
+  // Matches the build command set in the Cloudflare dashboard during setup,
+  // now also committed here rather than living only as a dashboard click —
+  // the dashboard's build-command field is the one setting that was still
+  // NOT reflected in this file before this change. Cloudflare's own docs
+  // describe the wrangler config as the intended single source of truth for
+  // a Worker's setup; this is that principle applied to the one field it
+  // wasn't yet applied to. (Whether Workers Builds' CI currently reads this
+  // field, versus only the dashboard setting, is genuinely unclear from
+  // Cloudflare's own docs as of this write — a related feature request was
+  // only recently marked resolved. Harmless if unread; it is definitely read
+  // by a local `wrangler deploy`.)
+  "build": {
+    "command": "npm run build"
+  },
   // Without this, the workers.dev subdomain route is treated as disabled and
   // returns 404 with body "error code: 1042" on every path — confirmed live:
   // https://prudhvi-portfolio.paddyramakrishna.workers.dev/ 404'd on / and on
