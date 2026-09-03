@@ -57,6 +57,17 @@ export const categories = ['Analytics', 'Full-stack', 'AI'];
 /** @type {Project[]} */
 export const projects = [
   {
+    // Rewritten 2026-09-04 against github.com/PaddyCH96/india-aqi-forecasting's
+    // top-level README as of commit 5f30480 ("feat: honest forecasting...",
+    // 2026-08-30) — the repo's own most recent correction. CASE_STUDY.md and
+    // INSIGHTS.md in that repo still carry the PRE-correction numbers (last
+    // touched 2026-07-03, untouched by the fix commit) and were not used as a
+    // source here. The previous version of this entry stated 0.8–3.2% MAPE,
+    // "10–20× better than baselines" — the README now explicitly names that
+    // range as a leakage artifact and replaces it with the honest benchmark
+    // below. cardStat is null on purpose: the honest finding is that the model
+    // does NOT decisively beat a naive baseline, and authoring a single
+    // flattering number here would be the exact mistake this entry replaces.
     slug: 'india-air-quality-forecasting',
     name: 'India Air Quality Forecasting',
     tag: 'Machine Learning · Production',
@@ -65,20 +76,20 @@ export const projects = [
     status: 'Shipped',
     url: 'https://github.com/PaddyCH96/india-aqi-forecasting',
     summary:
-      'A production-grade forecasting system for air quality across 26 Indian cities, built end to end — ingestion, feature engineering, model, API and dashboard.',
+      'A production forecasting system for air quality across 26 Indian cities — and an honest benchmark showing that, for most cities, it barely beats assuming tomorrow looks like today.',
     problem:
-      'Air quality data for India is fragmented across CPCB and OpenAQ, riddled with gaps, and published as raw readings rather than forecasts. Nobody could answer a simple question: what will the air be like next week, and how much should I trust that number?',
+      'Air quality data for India is fragmented across CPCB and OpenAQ, riddled with gaps, and published as raw readings rather than forecasts. I wanted to know whether daily AQI is actually predictable enough to act on — not just whether a model could be trained on it.',
     approach:
-      'Built the full pipeline — ingestion and cleaning across two sources, 66 engineered features per city (lags, rolling statistics, seasonal cycles, pollutant interactions), XGBoost and Random Forest models with time-series cross-validation, and provenance tracking that tags every row as real or synthetic. Wrapped in a FastAPI service and a six-page dashboard.',
+      'Built the full pipeline — ingestion and cleaning across CPCB and OpenAQ, 66 engineered features per city, and XGBoost models trained per city per forecast horizon (1/3/7/14 days). Benchmarked every one of them on a rolling backtest against persistence — literally assuming tomorrow looks like today — because a forecast that cannot beat that has not earned its complexity. That backtest caught two features that had leaked the target into the inputs: a z-score normalised against the value being predicted (correlating r=1.000 with it) and rolling means whose window included the current day. Both are fixed, with a regression test that fails if either returns.',
     outcome:
-      'Forecasts land at 0.8–1.0% MAPE in cities with complete data and 0.8–3.2% across all 26 — 10–20× better than moving-average and seasonal-naive baselines. 144 tests at 95% coverage, deployed as a 4-service Docker Compose stack.',
-    cardStat: { value: '0.8–3.2%', unit: 'MAPE, 26 cities' }, // points[1]
+      'The honest result is a negative one, and it is the actual finding: across 6 cities and 4 horizons, persistence beats or ties the model almost everywhere — XGBoost only reliably wins for Delhi, and only 1–3 days out. What separates cities is data density, not algorithm: Delhi has 1,451 training days and forecasts best; Mumbai has 227 (61% of its daily readings are missing) and errors run 2–3× higher at every horizon. 159 tests, including the regression suite that keeps the leak from coming back.',
+    cardStat: null,
     points: [
       '700K+ records across 26 cities and 12 pollutants (5.5 years of CPCB + OpenAQ data)',
-      '0.8–3.2% MAPE across all cities — 0.8–1.0% where data is complete',
-      '10–20× better than moving-average and seasonal-naive baselines',
-      '66 engineered features per city with time-series cross-validation and provenance tracking',
-      '144 automated tests at 95% coverage; deployed via Docker Compose across 4 services',
+      'Benchmarked per-city, per-horizon XGBoost against a persistence baseline on a rolling backtest — persistence wins or ties almost everywhere; XGBoost only reliably beats it for Delhi at 1–3 days',
+      'Found and fixed two features that leaked the target into the inputs, including one correlating r=1.000 with the value being predicted — now covered by a regression test that fails if either returns',
+      'Data density, not model choice, explains the accuracy gap — Delhi (1,451 training days) forecasts far better than Mumbai (227 days, 61% of readings missing)',
+      '159 tests, deployed via Docker Compose with a live Streamlit dashboard and FastAPI service',
     ],
     stack: ['Python', 'XGBoost', 'NumPy/SciPy', 'FastAPI', 'PostgreSQL', 'Streamlit', 'Docker'],
   },

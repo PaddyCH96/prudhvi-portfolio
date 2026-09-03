@@ -29,7 +29,7 @@ export const about = {
       title: 'Why the projects look like engineering',
       body: [
         'Somewhere between building dashboards and automating the pipelines behind them, the line between analysis and engineering stopped being useful. So I stopped defending it.',
-        'The air quality system is a production forecasting service — ingestion, 66 engineered features per city, XGBoost models, a REST API, 144 tests, Docker. ComplianceOS pairs OCR and LLM invoice extraction with a rules engine that scores filing risk 0–100 and automates GSTR-1 and GSTR-3B filing — in progress, at MVP stage. The e-commerce platform runs a local LLM so revenue data never leaves the machine.',
+        'The air quality system is a production forecasting service — ingestion, 66 engineered features per city, XGBoost models, a REST API, 159 tests, Docker. ComplianceOS pairs OCR and LLM invoice extraction with a rules engine that scores filing risk 0–100 and automates GSTR-1 and GSTR-3B filing — in progress, at MVP stage. The e-commerce platform runs a local LLM so revenue data never leaves the machine.',
         'None of that was assigned to me. It is what happens when an analyst gets curious about the layer underneath.',
       ],
     },
