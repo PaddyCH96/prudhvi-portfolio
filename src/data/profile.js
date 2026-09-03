@@ -21,10 +21,18 @@ export const profile = {
     'I turn messy operational data into dashboards, forecasts and pipelines that hold up in production. Five years across energy, telecom, healthcare and consumer tech.',
   location: 'Hyderabad, India',
   email: 'prudhvi.kadamuthuri.dev@gmail.com',
+  // Display form and tel: href are derived from the same value everywhere
+  // this is used, so the number can't drift between the two.
+  phone: '+91 80197 92395',
   linkedin: 'https://www.linkedin.com/in/prudhvikadamuthuri/',
   github: 'https://github.com/PaddyCH96',
   resume: 'Prudhvi_Kadamuthuri_Resume.pdf',
 };
+
+/** Derived, not literal: the tel: URI scheme rejects spaces, so every call
+ * site would otherwise repeat the same `.replace(/\s+/g, '')`. One place to
+ * get it right, same discipline as `projectCount` above. */
+export const phoneHref = `tel:${profile.phone.replace(/\s+/g, '')}`;
 
 export const site = {
   domain: 'prudhvik.dev',

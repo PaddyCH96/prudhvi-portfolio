@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { about, profile, certifications } from '../data/index.js';
+import { about, profile, phoneHref, certifications } from '../data/index.js';
 
 const title = `About — ${profile.name}`;
 const description =
@@ -53,11 +53,12 @@ const description =
     <div class="wrap">
       <h2>Get in touch</h2>
       <p class="body">
-        The fastest way to reach me is email. I reply to everything that is not a
-        template.
+        The fastest way to reach me is phone. If I miss it, leave a message or
+        text and I'll get back to you.
       </p>
       <div class="actions">
-        <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn btn-primary" href={phoneHref}>{profile.phone}</a>
+        <a class="btn" href={`mailto:${profile.email}`}>Email</a>
         <a class="btn" href={profile.linkedin}>LinkedIn</a>
         <a class="btn" href={profile.github}>GitHub</a>
         <a class="btn" href={`/${profile.resume}`} download>Résumé (PDF)</a>

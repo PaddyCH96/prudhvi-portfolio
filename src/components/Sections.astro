@@ -1,5 +1,5 @@
 ---
-import { profile, stats, featuredProjects, experience, skills, education, projectCount } from '../data/index.js';
+import { profile, phoneHref, stats, featuredProjects, experience, skills, education, projectCount } from '../data/index.js';
 
 // The two marquee bands are DERIVED from the headline rather than authored, so
 // the decoration cannot drift from the claim it decorates. profile.headline is
@@ -42,6 +42,8 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
     <div class="hero-actions">
       <a class="btn btn-primary hero-cta" href={`/${profile.resume}`} download>Download résumé (PDF)</a>
       <p class="hero-secondary">
+        <a href={phoneHref} aria-label={`Call ${profile.phone}`}>Phone</a>
+        <span aria-hidden="true">·</span>
         <a href={profile.github}>GitHub</a>
         <span aria-hidden="true">·</span>
         <a href={profile.linkedin}>LinkedIn</a>
@@ -141,10 +143,11 @@ const marqueeBands = profile.headline.split('·').map((s) => s.trim());
       <h2>Get in touch</h2>
       <p class="panel-body">
         I'm open to Data Analyst, BI Analyst and Analytics Engineer roles — India, UAE, or remote.
-        Based in {profile.location}. The fastest way to reach me is email.
+        Based in {profile.location}. The fastest way to reach me is phone.
       </p>
       <div class="panel-actions">
-        <a class="btn btn-primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn btn-primary" href={phoneHref}>{profile.phone}</a>
+        <a class="btn" href={`mailto:${profile.email}`}>Email</a>
         <a class="btn" href={profile.linkedin}>LinkedIn</a>
         <a class="btn" href={profile.github}>GitHub</a>
       </div>
