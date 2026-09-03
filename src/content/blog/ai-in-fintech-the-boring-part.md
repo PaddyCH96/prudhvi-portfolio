@@ -3,12 +3,8 @@ title: "AI in fintech is the boring part, not the exciting part"
 description: "Building a GST compliance engine taught me where an LLM belongs in a regulated financial workflow — and where it very much doesn't."
 date: 2026-09-04
 tags: ["fintech", "ai", "compliance"]
-draft: true
+draft: false
 ---
-
-> **Draft.** Written as a starting point — edit it into your own voice before
-> publishing. Set `draft: false` in the frontmatter to publish. Drafts never
-> appear in the production build.
 
 Most "AI in fintech" content is about the flashy stuff. A chatbot that
 answers your banking questions. A model that approves your loan in seconds.

@@ -3,12 +3,8 @@ title: "I'm not sure my healthcare project counts as 'AI'"
 description: "A forecasting dashboard for a mental health provider's clinical team, built as an intern. Small, real, useful — and I'm genuinely unsure it deserves the label I'm about to put on it."
 date: 2026-09-04
 tags: ["healthcare", "ai", "forecasting"]
-draft: true
+draft: false
 ---
-
-> **Draft.** Written as a starting point — edit it into your own voice before
-> publishing. Set `draft: false` in the frontmatter to publish. Drafts never
-> appear in the production build.
 
 As a data analyst intern at Stride Mental Health in Brisbane, I built a
 pipeline over roughly 500 NDIS participant records and put a Power BI

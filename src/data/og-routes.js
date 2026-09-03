@@ -18,9 +18,10 @@
 // `ogRoutes(posts)` — a pure function taking the already-fetched collection as
 // an argument, the same shape as projectBySlug(slug).
 //
-// Blog records are DERIVED, never enumerated. src/content/blog/hello.md is one
-// `draft: false` away from publishing a route; an enumerated list would turn
-// publishing a post into a build failure that names none of the actual cause.
+// Blog records are DERIVED, never enumerated. Every post under
+// src/content/blog/ is one `draft: false` away from publishing a route; an
+// enumerated list would turn publishing a post into a build failure that
+// names none of the actual cause.
 //
 // SOURCING RULE: every claim here must be true in Master/*.yaml (Job Hunt OS)
 // or verifiable in the project repo it describes. No count is typed — every

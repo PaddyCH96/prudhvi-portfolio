@@ -49,7 +49,15 @@ const fmt = (d: Date) =>
 </Base>
 
 <style>
-  .back { display: inline-block; font-size: 14px; text-decoration: none; padding: 11px 0; margin: -11px 0 9px; }
+  /* Height is declared, not accumulated from padding (C-9), matching the
+   * identical fix on the case-study .back in projects/[slug].astro. This page
+   * had never been sweep-tested before — every prior post was draft: true,
+   * so dist/ never contained a real one for tests/visual/sweep.mjs to check. */
+  .back {
+    display: inline-flex; align-items: center; min-height: 44px;
+    font-size: 14px; text-decoration: none;
+    padding: 11px 0; margin: -11px 0 9px;
+  }
   .back:hover { text-decoration: underline; }
   .meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .draft-flag {
